@@ -1,0 +1,4 @@
+code;name;description;active
+DEMO-ELEC;Electronics;Sample electronic items;true
+DEMO-PACK;Packaging;Sample packaging supplies;true
+DEMO-TOOLS;Tools;Sample warehouse tools;true

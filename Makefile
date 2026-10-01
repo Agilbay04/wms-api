@@ -1,0 +1,43 @@
+GRADLE := ./gradlew
+COMPOSE := docker compose
+
+.DEFAULT_GOAL := help
+.PHONY: help check-env run test build docker-build docker-up docker-logs docker-down swagger
+
+help:
+	@printf '%s\n' 'Available commands:' \
+		'  make run          Start Spring Boot locally using .env' \
+		'  make test         Run all unit tests' \
+		'  make build        Build the executable JAR' \
+		'  make docker-build Build the Docker image' \
+		'  make docker-up    Start wms-api with Docker Compose' \
+		'  make docker-logs  Follow wms-api logs' \
+		'  make docker-down  Stop wms-api' \
+		'  make swagger      Print the Swagger UI URL'
+
+check-env:
+	@test -f .env || { echo "Missing .env. Copy .env.example and configure it first."; exit 1; }
+
+run: check-env
+	@set -a; . ./.env; set +a; $(GRADLE) bootRun
+
+test:
+	$(GRADLE) clean test
+
+build:
+	$(GRADLE) bootJar
+
+docker-build: check-env
+	$(COMPOSE) build
+
+docker-up: check-env
+	$(COMPOSE) up -d --build
+
+docker-logs: check-env
+	$(COMPOSE) logs --tail=100 -f wms-api
+
+docker-down: check-env
+	$(COMPOSE) down
+
+swagger: check-env
+	@set -a; . ./.env; set +a; printf 'http://localhost:%s/swagger-ui/index.html\n' "$${WMS_SERVER_PORT:-8081}"
