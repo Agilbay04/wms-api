@@ -43,3 +43,6 @@ out/
 .env.prod
 exports/
 seed-results/
+
+# Local reference documentation
+/docs/
