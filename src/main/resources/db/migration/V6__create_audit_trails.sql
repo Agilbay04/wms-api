@@ -1,0 +1,12 @@
+CREATE TABLE audit_trails (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    action VARCHAR(30) NOT NULL CHECK (action IN ('CREATE', 'UPDATE', 'DELETE', 'REQUEST_APPROVAL', 'APPROVE', 'REJECT', 'EXPORT')),
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id UUID NOT NULL,
+    description TEXT,
+    occurred_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ
+);

@@ -1,0 +1,5 @@
+warehouseCode;code;name;description;active
+DEMO-JKT;A-01;Jakarta Receiving;Receiving area;true
+DEMO-JKT;A-02;Jakarta Storage;Storage rack;true
+DEMO-BDG;A-01;Bandung Receiving;Receiving area;true
+DEMO-BDG;A-02;Bandung Storage;Storage rack;true

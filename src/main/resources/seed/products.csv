@@ -1,0 +1,13 @@
+sku;categoryCode;name;description;unit;minimumStock;active
+DEMO-001;DEMO-ELEC;Barcode Scanner;Handheld scanner;pcs;5;true
+DEMO-002;DEMO-ELEC;Label Printer;Thermal label printer;pcs;3;true
+DEMO-003;DEMO-ELEC;USB Cable;Two meter cable;pcs;20;true
+DEMO-004;DEMO-ELEC;Battery Pack;Replacement battery;pcs;10;true
+DEMO-005;DEMO-PACK;Shipping Box Small;Small corrugated box;pcs;50;true
+DEMO-006;DEMO-PACK;Shipping Box Large;Large corrugated box;pcs;30;true
+DEMO-007;DEMO-PACK;Packing Tape;Clear packing tape;roll;25;true
+DEMO-008;DEMO-PACK;Bubble Wrap;Protective bubble wrap;roll;10;true
+DEMO-009;DEMO-TOOLS;Pallet Jack;Manual pallet jack;pcs;2;true
+DEMO-010;DEMO-TOOLS;Safety Cutter;Retractable cutter;pcs;15;true
+DEMO-011;DEMO-TOOLS;Measuring Tape;Five meter measuring tape;pcs;8;true
+DEMO-012;DEMO-TOOLS;Work Gloves;Warehouse work gloves;pair;25;true

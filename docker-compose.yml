@@ -1,0 +1,18 @@
+services:
+  wms-api:
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      WMS_EXPORT_DIRECTORY: /app/exports
+      WMS_SEED_RESULT_DIRECTORY: /app/seed-results
+    ports:
+      - "${WMS_SERVER_PORT:-8081}:${WMS_SERVER_PORT:-8081}"
+    volumes:
+      - ./exports:/app/exports
+      - wms_seed_results:/app/seed-results
+    restart: unless-stopped
+
+volumes:
+  wms_seed_results:
