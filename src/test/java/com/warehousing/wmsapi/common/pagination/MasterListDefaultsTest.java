@@ -32,7 +32,8 @@ class MasterListDefaultsTest {
                     .toArray(String[]::new);
 
             assertEquals("1", defaults[0], controller.getSimpleName());
-            assertEquals("10", defaults[1], controller.getSimpleName());
+            assertEquals("10", defaults[
+                1], controller.getSimpleName());
         }
     }
 }
