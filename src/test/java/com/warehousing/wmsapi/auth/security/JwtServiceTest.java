@@ -1,6 +1,7 @@
 package com.warehousing.wmsapi.auth.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.warehousing.wmsapi.config.AppProperties;
 import java.time.Duration;
@@ -20,5 +21,6 @@ class JwtServiceTest {
         String token = jwtService.createAccessToken("admin@example.com");
 
         assertEquals("admin@example.com", jwtService.getSubject(token));
+        assertNotNull(jwtService.parseClaims(token).getId());
     }
 }

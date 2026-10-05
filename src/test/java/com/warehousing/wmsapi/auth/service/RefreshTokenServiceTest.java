@@ -1,14 +1,16 @@
 package com.warehousing.wmsapi.auth.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.warehousing.wmsapi.config.AppProperties;
 import java.time.Duration;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -27,10 +29,14 @@ class RefreshTokenServiceTest {
         RefreshTokenService service = new RefreshTokenServiceImpl(redisTemplate, properties);
 
         String token = service.issue("staff@example.com");
-        verify(valueOperations).set(startsWith("wms:auth:refresh:"), eq("staff@example.com"), eq(ttl));
-        when(valueOperations.getAndDelete("wms:auth:refresh:" + token)).thenReturn("staff@example.com");
+        ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
+        verify(valueOperations).set(keyCaptor.capture(), eq("staff@example.com"), eq(ttl));
+        String redisKey = keyCaptor.getValue();
+        assertTrue(redisKey.matches("wms:auth:refresh:[a-f0-9]{64}"));
+        assertNotEquals("wms:auth:refresh:" + token, redisKey);
+        when(valueOperations.getAndDelete(redisKey)).thenReturn("staff@example.com");
         assertEquals("staff@example.com", service.rotate(token));
         service.revoke(token);
-        verify(redisTemplate).delete("wms:auth:refresh:" + token);
+        verify(redisTemplate).delete(redisKey);
     }
 }

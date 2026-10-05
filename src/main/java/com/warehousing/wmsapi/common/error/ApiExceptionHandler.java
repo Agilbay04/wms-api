@@ -3,6 +3,7 @@ package com.warehousing.wmsapi.common.error;
 import com.warehousing.wmsapi.common.api.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,7 +29,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new LinkedHashMap<>();
         for (FieldError error : exception.getBindingResult().getFieldErrors()) {
-            errors.putIfAbsent(error.getField(), error.getDefaultMessage());
+            errors.putIfAbsent(toSnakeCase(error.getField()), error.getDefaultMessage());
         }
         return failure(HttpStatus.UNPROCESSABLE_CONTENT, "Request validation failed.", errors);
     }
@@ -37,7 +38,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(ConstraintViolationException exception) {
         Map<String, String> errors = new LinkedHashMap<>();
         exception.getConstraintViolations().forEach(violation ->
-                errors.put(violation.getPropertyPath().toString(), violation.getMessage())
+                errors.put(toSnakeCase(violation.getPropertyPath().toString()), violation.getMessage())
         );
         return failure(HttpStatus.UNPROCESSABLE_CONTENT, "Request validation failed.", errors);
     }
@@ -79,5 +80,9 @@ public class ApiExceptionHandler {
             Map<String, String> errors
     ) {
         return ResponseEntity.status(status).body(ApiResponse.failure(status, message, errors));
+    }
+
+    private static String toSnakeCase(String value) {
+        return value.replaceAll("([a-z0-9])([A-Z])", "$1_$2").toLowerCase(Locale.ROOT);
     }
 }

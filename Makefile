@@ -2,12 +2,13 @@ GRADLE := ./gradlew
 COMPOSE := docker compose
 
 .DEFAULT_GOAL := help
-.PHONY: help check-env run test build docker-build docker-up docker-logs docker-down swagger
+.PHONY: help check-env run test integration-test build docker-build docker-up docker-logs docker-down swagger
 
 help:
 	@printf '%s\n' 'Available commands:' \
 		'  make run          Start Spring Boot locally using .env' \
 		'  make test         Run all unit tests' \
+		'  make integration-test Run the opt-in Flyway migration integration test' \
 		'  make build        Build the executable JAR' \
 		'  make docker-build Build the Docker image' \
 		'  make docker-up    Start wms-api with Docker Compose' \
@@ -23,6 +24,16 @@ run: check-env
 
 test:
 	$(GRADLE) clean test
+
+integration-test: check-env
+	@set -a; . ./.env; set +a; \
+	if [ "$${WMS_TEST_DB_NAME:-}" != "wms-integration-test" ]; then \
+		echo "WMS_TEST_DB_NAME must be wms-integration-test."; exit 1; \
+	fi; \
+	if [ -z "$${WMS_TEST_DB_HOST:-}" ] || [ -z "$${WMS_TEST_DB_USERNAME:-}" ]; then \
+		echo "Set WMS_TEST_DB_HOST and WMS_TEST_DB_USERNAME in .env first."; exit 1; \
+	fi; \
+	$(GRADLE) integrationTest --rerun-tasks --tests '*FlywayMigrationIntegrationTest'
 
 build:
 	$(GRADLE) bootJar

@@ -1,5 +1,7 @@
 package com.warehousing.wmsapi.auth.security;
 
+import com.warehousing.wmsapi.auth.service.AccessTokenRevocationService;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,23 +11,36 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
+    private final AccessTokenRevocationService accessTokenRevocationService;
     private final UserDetailsService userDetailsService;
-    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) { this.jwtService = jwtService; this.userDetailsService = userDetailsService; }
+    public JwtAuthenticationFilter(JwtService jwtService,
+                                   AccessTokenRevocationService accessTokenRevocationService,
+                                   UserDetailsService userDetailsService) {
+        this.jwtService = jwtService;
+        this.accessTokenRevocationService = accessTokenRevocationService;
+        this.userDetailsService = userDetailsService;
+    }
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer ")) { chain.doFilter(request, response); return; }
         try {
-            UserDetails user = userDetailsService.loadUserByUsername(jwtService.getSubject(header.substring(7)));
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            Claims claims = jwtService.parseClaims(header.substring(7));
+            if (claims.getId() == null || accessTokenRevocationService.isRevoked(claims.getId())) {
+                SecurityContextHolder.clearContext();
+            } else {
+                UserDetails user = userDetailsService.loadUserByUsername(claims.getSubject());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        user, null, user.getAuthorities());
+                authentication.setDetails(new JwtAuthenticationDetails(
+                        claims.getId(), claims.getExpiration().toInstant()));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         } catch (RuntimeException ignored) { SecurityContextHolder.clearContext(); }
         chain.doFilter(request, response);
     }

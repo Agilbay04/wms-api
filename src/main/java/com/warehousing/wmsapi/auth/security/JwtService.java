@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class JwtService {
         Instant expiresAt = issuedAt.plus(appProperties.jwt().accessTokenTtl());
         return Jwts.builder()
                 .subject(subject)
+                .id(UUID.randomUUID().toString())
                 .issuedAt(Date.from(issuedAt))
                 .expiration(Date.from(expiresAt))
                 .signWith(signingKey())
@@ -31,12 +33,15 @@ public class JwtService {
     }
 
     public String getSubject(String token) {
-        Claims claims = Jwts.parser()
+        return parseClaims(token).getSubject();
+    }
+
+    public Claims parseClaims(String token) {
+        return Jwts.parser()
                 .verifyWith(signingKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return claims.getSubject();
     }
 
     private SecretKey signingKey() {

@@ -48,8 +48,31 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
+sourceSets {
+	integrationTest {
+		java.srcDir 'src/test/java'
+		java.include '**/persistence/FlywayMigrationIntegrationTest.java'
+		compileClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.main.output
+	}
+}
+
+configurations {
+	integrationTestImplementation.extendsFrom testImplementation
+	integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.register('integrationTest', Test) {
+	description = 'Runs opt-in integration tests against dedicated test services.'
+	group = LifecycleBasePlugin.VERIFICATION_GROUP
+	testClassesDirs = sourceSets.integrationTest.output.classesDirs
+	classpath = sourceSets.integrationTest.runtimeClasspath
+	useJUnitPlatform()
+	shouldRunAfter tasks.named('test')
 }
 
 tasks.withType(JavaCompile).configureEach {
