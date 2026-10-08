@@ -1,6 +1,7 @@
-package com.warehousing.wmsapi.reporting;
+package com.warehousing.wmsapi.dashboard.service;
 
-import com.warehousing.wmsapi.reporting.dto.DashboardResponse;
+import com.warehousing.wmsapi.dashboard.dto.DashboardResponse;
+import com.warehousing.wmsapi.dashboard.repository.DashboardRepository;
 import com.warehousing.wmsapi.warehouse.service.WarehouseService;
 import java.util.UUID;
 import org.springframework.security.core.Authentication;
@@ -9,15 +10,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class DashboardService {
     private final WarehouseService warehouseService;
-    private final DashboardCache dashboardCache;
+    private final DashboardRepository dashboardRepository;
 
-    public DashboardService(WarehouseService warehouseService, DashboardCache dashboardCache) {
+    public DashboardService(WarehouseService warehouseService, DashboardRepository dashboardRepository) {
         this.warehouseService = warehouseService;
-        this.dashboardCache = dashboardCache;
+        this.dashboardRepository = dashboardRepository;
     }
 
     public DashboardResponse get(Authentication authentication, UUID warehouseId) {
         warehouseService.requireAccess(authentication, warehouseId);
-        return dashboardCache.get(warehouseId);
+        return dashboardRepository.get(warehouseId);
     }
 }

@@ -8,12 +8,12 @@ help:
 	@printf '%s\n' 'Available commands:' \
 		'  make run          Start Spring Boot locally using .env' \
 		'  make test         Run all unit tests' \
-		'  make integration-test Run opt-in migration, transaction, reporting, and audit integration tests' \
+		'  make integration-test Run opt-in migration, transaction, reporting, audit, and export integration tests' \
 		'  make build        Build the executable JAR' \
 		'  make docker-build Build the Docker image' \
-		'  make docker-up    Start wms-api with Docker Compose' \
-		'  make docker-logs  Follow wms-api logs' \
-		'  make docker-down  Stop wms-api' \
+		'  make docker-up    Start wms-api and Nginx with Docker Compose' \
+		'  make docker-logs  Follow wms-api and Nginx logs' \
+		'  make docker-down  Stop wms-api and Nginx' \
 		'  make swagger      Print the Swagger UI URL'
 
 check-env:
@@ -33,7 +33,7 @@ integration-test: check-env
 	if [ -z "$${WMS_TEST_DB_HOST:-}" ] || [ -z "$${WMS_TEST_DB_USERNAME:-}" ]; then \
 		echo "Set WMS_TEST_DB_HOST and WMS_TEST_DB_USERNAME in .env first."; exit 1; \
 	fi; \
-	$(GRADLE) integrationTest --rerun-tasks --tests '*FlywayMigrationIntegrationTest' --tests '*InboundIntegrationTest' --tests '*StockConcurrencyIntegrationTest' --tests '*StockQueryIntegrationTest' --tests '*StockTransferIntegrationTest' --tests '*StockAdjustmentIntegrationTest' --tests '*OutboundIntegrationTest' --tests '*ReportingIntegrationTest' --tests '*AuditTrailIntegrationTest'
+	$(GRADLE) integrationTest --rerun-tasks --tests '*FlywayMigrationIntegrationTest' --tests '*InboundIntegrationTest' --tests '*StockConcurrencyIntegrationTest' --tests '*StockQueryIntegrationTest' --tests '*StockTransferIntegrationTest' --tests '*StockAdjustmentIntegrationTest' --tests '*OutboundIntegrationTest' --tests '*ReportingIntegrationTest' --tests '*AuditTrailIntegrationTest' --tests '*ExportJobIntegrationTest'
 
 build:
 	$(GRADLE) bootJar
@@ -45,7 +45,7 @@ docker-up: check-env
 	$(COMPOSE) up -d --build
 
 docker-logs: check-env
-	$(COMPOSE) logs --tail=100 -f wms-api
+	$(COMPOSE) logs --tail=100 -f wms-api nginx
 
 docker-down: check-env
 	$(COMPOSE) down

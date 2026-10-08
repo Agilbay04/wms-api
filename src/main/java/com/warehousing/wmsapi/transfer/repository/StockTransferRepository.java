@@ -4,7 +4,7 @@ import com.warehousing.wmsapi.common.api.PageResponse;
 import com.warehousing.wmsapi.common.error.BusinessException;
 import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import com.warehousing.wmsapi.common.pagination.MasterPage;
-import com.warehousing.wmsapi.transfer.StockTransferStatus;
+import com.warehousing.wmsapi.transfer.enums.StockTransferStatus;
 import com.warehousing.wmsapi.transfer.dto.StockTransferItemResponse;
 import com.warehousing.wmsapi.transfer.dto.StockTransferListItemResponse;
 import com.warehousing.wmsapi.transfer.dto.StockTransferResponse;

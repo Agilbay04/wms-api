@@ -11,7 +11,7 @@ import com.warehousing.wmsapi.inbound.dto.InboundPutawayRequest;
 import com.warehousing.wmsapi.inbound.dto.InboundRejectRequest;
 import com.warehousing.wmsapi.inbound.dto.InboundResponse;
 import com.warehousing.wmsapi.inbound.dto.InboundUpdateRequest;
-import com.warehousing.wmsapi.inbound.entity.InboundStatus;
+import com.warehousing.wmsapi.inbound.enums.InboundStatus;
 import com.warehousing.wmsapi.inbound.repository.InboundRepository;
 import com.warehousing.wmsapi.inbound.repository.InboundRepository.Header;
 import com.warehousing.wmsapi.inbound.repository.InboundRepository.InboundItemInput;

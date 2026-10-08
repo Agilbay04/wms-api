@@ -1,4 +1,4 @@
-package com.warehousing.wmsapi.transfer;
+package com.warehousing.wmsapi.transfer.enums;
 
 public enum StockTransferStatus {
     PENDING,

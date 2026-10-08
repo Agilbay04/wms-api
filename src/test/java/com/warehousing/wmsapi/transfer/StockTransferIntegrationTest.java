@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.warehousing.wmsapi.common.error.BusinessException;
 import com.warehousing.wmsapi.persistence.IntegrationTestDatabase;
 import com.warehousing.wmsapi.transfer.dto.StockTransferCreateRequest;
+import com.warehousing.wmsapi.transfer.enums.StockTransferStatus;
 import com.warehousing.wmsapi.transfer.dto.StockTransferItemRequest;
 import com.warehousing.wmsapi.transfer.dto.StockTransferResponse;
 import com.warehousing.wmsapi.transfer.dto.StockTransferRejectRequest;

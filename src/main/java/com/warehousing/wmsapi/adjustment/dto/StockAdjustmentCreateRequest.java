@@ -1,6 +1,6 @@
 package com.warehousing.wmsapi.adjustment.dto;
 
-import com.warehousing.wmsapi.adjustment.StockAdjustmentType;
+import com.warehousing.wmsapi.adjustment.enums.StockAdjustmentType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

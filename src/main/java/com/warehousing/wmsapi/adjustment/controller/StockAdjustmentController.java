@@ -10,6 +10,7 @@ import com.warehousing.wmsapi.common.api.ApiResponse;
 import com.warehousing.wmsapi.common.api.PageResponse;
 import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springdoc.core.annotations.ParameterObject;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Stock adjustments", description = "Adjustment draft, review, and stock correction workflows.")
 @RequestMapping("/api/v1/stock-adjustments")
 @SecurityRequirement(name = "bearerAuth")
 public class StockAdjustmentController {

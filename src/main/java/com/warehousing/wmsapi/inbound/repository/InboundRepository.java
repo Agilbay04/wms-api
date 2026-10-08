@@ -7,7 +7,7 @@ import com.warehousing.wmsapi.common.pagination.MasterPage;
 import com.warehousing.wmsapi.inbound.dto.InboundItemResponse;
 import com.warehousing.wmsapi.inbound.dto.InboundListItemResponse;
 import com.warehousing.wmsapi.inbound.dto.InboundResponse;
-import com.warehousing.wmsapi.inbound.entity.InboundStatus;
+import com.warehousing.wmsapi.inbound.enums.InboundStatus;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;

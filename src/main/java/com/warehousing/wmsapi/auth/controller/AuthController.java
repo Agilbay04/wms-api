@@ -8,6 +8,7 @@ import com.warehousing.wmsapi.auth.dto.LoginResponse;
 import com.warehousing.wmsapi.common.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Authentication", description = "Login, refresh, and revoke bearer tokens.")
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;

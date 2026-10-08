@@ -10,6 +10,7 @@ import com.warehousing.wmsapi.outbound.dto.OutboundResponse;
 import com.warehousing.wmsapi.outbound.dto.OutboundUpdateRequest;
 import com.warehousing.wmsapi.outbound.service.OutboundService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springdoc.core.annotations.ParameterObject;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Outbounds", description = "Pick and dispatch stock through draft and approval workflows.")
 @RequestMapping("/api/v1/outbounds")
 @SecurityRequirement(name = "bearerAuth")
 public class OutboundController {

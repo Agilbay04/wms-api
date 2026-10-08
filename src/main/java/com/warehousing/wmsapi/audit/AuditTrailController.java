@@ -5,6 +5,7 @@ import com.warehousing.wmsapi.audit.dto.AuditTrailResponse;
 import com.warehousing.wmsapi.common.api.ApiResponse;
 import com.warehousing.wmsapi.common.api.PageResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Audit trails", description = "Search audit records for warehouse operations.")
 @RequestMapping("/api/v1/audit-trails")
 @SecurityRequirement(name = "bearerAuth")
 public class AuditTrailController {

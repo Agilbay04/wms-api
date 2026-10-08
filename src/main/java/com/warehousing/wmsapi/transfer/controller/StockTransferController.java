@@ -10,6 +10,7 @@ import com.warehousing.wmsapi.transfer.dto.StockTransferResponse;
 import com.warehousing.wmsapi.transfer.dto.StockTransferUpdateRequest;
 import com.warehousing.wmsapi.transfer.service.StockTransferService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springdoc.core.annotations.ParameterObject;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Stock transfers", description = "Move stock between warehouse locations through approval workflows.")
 @RequestMapping("/api/v1/stock-transfers")
 @SecurityRequirement(name = "bearerAuth")
 public class StockTransferController {

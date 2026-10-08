@@ -1,6 +1,6 @@
 package com.warehousing.wmsapi.outbound.dto;
 
-import com.warehousing.wmsapi.outbound.OutboundStatus;
+import com.warehousing.wmsapi.outbound.enums.OutboundStatus;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 

@@ -1,0 +1,173 @@
+{
+  "info": {
+    "name": "Warehouse Management API",
+    "description": "Critical warehouse workflow. Set admin credentials and a separate reviewer account in collection variables. Login stores access_token and refresh_token automatically. Request and response JSON uses snake_case.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{access_token}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8081" },
+    { "key": "admin_email", "value": "" },
+    { "key": "admin_password", "value": "" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "reviewer_email", "value": "" },
+    { "key": "reviewer_password", "value": "" },
+    { "key": "reviewer_token", "value": "" },
+    { "key": "warehouse_id", "value": "" },
+    { "key": "category_id", "value": "" },
+    { "key": "product_id", "value": "" },
+    { "key": "source_location_id", "value": "" },
+    { "key": "destination_location_id", "value": "" },
+    { "key": "inbound_id", "value": "" },
+    { "key": "inbound_item_id", "value": "" },
+    { "key": "transfer_id", "value": "" },
+    { "key": "adjustment_id", "value": "" },
+    { "key": "outbound_id", "value": "" },
+    { "key": "export_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{base_url}}/api/v1/auth/login"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('login succeeds', function () { pm.response.to.have.status(200); });", "const data = pm.response.json().data;", "pm.collectionVariables.set('access_token', data.access_token);", "pm.collectionVariables.set('refresh_token', data.refresh_token);"] } }]
+        },
+        {
+          "name": "Login as reviewer (required for approvals)",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{reviewer_email}}\",\n  \"password\": \"{{reviewer_password}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{base_url}}/api/v1/auth/login"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('reviewer login succeeds', function () { pm.response.to.have.status(200); });", "pm.collectionVariables.set('reviewer_token', pm.response.json().data.access_token);"] } }]
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{base_url}}/api/v1/auth/refresh"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('refresh succeeds', function () { pm.response.to.have.status(200); });", "const data = pm.response.json().data;", "pm.collectionVariables.set('access_token', data.access_token);", "pm.collectionVariables.set('refresh_token', data.refresh_token);"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Master data",
+      "item": [
+        {
+          "name": "Create warehouse",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"code\": \"DEMO-WH-01\",\n  \"name\": \"Demo Warehouse\",\n  \"address\": \"Main site\",\n  \"active\": true\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/warehouses" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('warehouse created', function () { pm.response.to.have.status(201); });", "pm.collectionVariables.set('warehouse_id', pm.response.json().data.id);"] } }]
+        },
+        {
+          "name": "Create product category",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"code\": \"DEMO-CAT-01\",\n  \"name\": \"General supplies\",\n  \"description\": \"Postman walkthrough category\",\n  \"active\": true\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/product-categories" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('category created', function () { pm.response.to.have.status(201); });", "pm.collectionVariables.set('category_id', pm.response.json().data.id);"] } }]
+        },
+        {
+          "name": "Create product",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"category_id\": \"{{category_id}}\",\n  \"sku\": \"DEMO-SKU-01\",\n  \"name\": \"Demo item\",\n  \"description\": \"Walkthrough product\",\n  \"unit\": \"pcs\",\n  \"minimum_stock\": 2,\n  \"active\": true\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/products" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('product created', function () { pm.response.to.have.status(201); });", "pm.collectionVariables.set('product_id', pm.response.json().data.id);"] } }]
+        },
+        {
+          "name": "Create source location",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"code\": \"PICK-01\",\n  \"name\": \"Picking shelf\",\n  \"description\": \"Source location\",\n  \"active\": true\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/warehouses/{{warehouse_id}}/locations" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('location created', function () { pm.response.to.have.status(201); });", "pm.collectionVariables.set('source_location_id', pm.response.json().data.id);"] } }]
+        },
+        {
+          "name": "Create destination location",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"code\": \"PACK-01\",\n  \"name\": \"Packing shelf\",\n  \"description\": \"Destination location\",\n  \"active\": true\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/warehouses/{{warehouse_id}}/locations" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('location created', function () { pm.response.to.have.status(201); });", "pm.collectionVariables.set('destination_location_id', pm.response.json().data.id);"] } }]
+        },
+        { "name": "List warehouses", "request": { "method": "GET", "url": "{{base_url}}/api/v1/warehouses?page=1&size=10&order=desc" } },
+        { "name": "List products", "request": { "method": "GET", "url": "{{base_url}}/api/v1/products?page=1&size=10&order=desc" } }
+      ]
+    },
+    {
+      "name": "Inbound and putaway",
+      "item": [
+        {
+          "name": "Create inbound draft",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"warehouse_id\": \"{{warehouse_id}}\",\n  \"purchase_order_number\": \"PO-DEMO-01\",\n  \"notes\": \"Initial receipt\",\n  \"items\": [{\n    \"product_id\": \"{{product_id}}\",\n    \"quantity\": 20,\n    \"notes\": \"Demo stock\"\n  }]\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/inbounds" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('inbound draft created', function () { pm.response.to.have.status(201); });", "const data = pm.response.json().data;", "pm.collectionVariables.set('inbound_id', data.id);", "pm.collectionVariables.set('inbound_item_id', data.items[0].id);"] } }]
+        },
+        { "name": "Submit inbound", "request": { "method": "POST", "url": "{{base_url}}/api/v1/inbounds/{{inbound_id}}/submit" } },
+        { "name": "Approve inbound (reviewer)", "request": { "method": "POST", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{reviewer_token}}", "type": "string" }] }, "url": "{{base_url}}/api/v1/inbounds/{{inbound_id}}/approve" } },
+        {
+          "name": "Put away inbound items",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"items\": [{\n    \"inbound_item_id\": \"{{inbound_item_id}}\",\n    \"warehouse_location_id\": \"{{source_location_id}}\"\n  }]\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/inbounds/{{inbound_id}}/putaway" }
+        }
+      ]
+    },
+    {
+      "name": "Transfer",
+      "item": [
+        {
+          "name": "Create transfer draft",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"warehouse_id\": \"{{warehouse_id}}\",\n  \"notes\": \"Move stock to packing\",\n  \"items\": [{\n    \"product_id\": \"{{product_id}}\",\n    \"source_warehouse_location_id\": \"{{source_location_id}}\",\n    \"destination_warehouse_location_id\": \"{{destination_location_id}}\",\n    \"quantity\": 3,\n    \"notes\": \"Replenish packing\"\n  }]\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/stock-transfers" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('transfer draft created', function () { pm.response.to.have.status(201); });", "pm.collectionVariables.set('transfer_id', pm.response.json().data.id);"] } }]
+        },
+        { "name": "Submit transfer", "request": { "method": "POST", "url": "{{base_url}}/api/v1/stock-transfers/{{transfer_id}}/submit" } },
+        { "name": "Approve transfer (reviewer)", "request": { "method": "POST", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{reviewer_token}}", "type": "string" }] }, "url": "{{base_url}}/api/v1/stock-transfers/{{transfer_id}}/approve" } }
+      ]
+    },
+    {
+      "name": "Adjustment",
+      "item": [
+        {
+          "name": "Create adjustment draft",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"warehouse_id\": \"{{warehouse_id}}\",\n  \"adjustment_type\": \"CORRECTION\",\n  \"reason\": \"Cycle count correction\",\n  \"items\": [{\n    \"product_id\": \"{{product_id}}\",\n    \"warehouse_location_id\": \"{{destination_location_id}}\",\n    \"quantity_change\": 1,\n    \"notes\": \"Found one extra unit\"\n  }]\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/stock-adjustments" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('adjustment draft created', function () { pm.response.to.have.status(201); });", "pm.collectionVariables.set('adjustment_id', pm.response.json().data.id);"] } }]
+        },
+        { "name": "Submit adjustment", "request": { "method": "POST", "url": "{{base_url}}/api/v1/stock-adjustments/{{adjustment_id}}/submit" } },
+        { "name": "Approve adjustment (reviewer)", "request": { "method": "POST", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{reviewer_token}}", "type": "string" }] }, "url": "{{base_url}}/api/v1/stock-adjustments/{{adjustment_id}}/approve" } }
+      ]
+    },
+    {
+      "name": "Outbound",
+      "item": [
+        {
+          "name": "Create outbound draft",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"warehouse_id\": \"{{warehouse_id}}\",\n  \"notes\": \"Demo dispatch\",\n  \"items\": [{\n    \"product_id\": \"{{product_id}}\",\n    \"warehouse_location_id\": \"{{destination_location_id}}\",\n    \"quantity\": 2,\n    \"notes\": \"Order line\"\n  }]\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/outbounds" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('outbound draft created', function () { pm.response.to.have.status(201); });", "pm.collectionVariables.set('outbound_id', pm.response.json().data.id);"] } }]
+        },
+        { "name": "Submit outbound", "request": { "method": "POST", "url": "{{base_url}}/api/v1/outbounds/{{outbound_id}}/submit" } },
+        { "name": "Approve outbound (reviewer)", "request": { "method": "POST", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{reviewer_token}}", "type": "string" }] }, "url": "{{base_url}}/api/v1/outbounds/{{outbound_id}}/approve" } }
+      ]
+    },
+    {
+      "name": "Reporting and export",
+      "item": [
+        { "name": "Dashboard", "request": { "method": "GET", "url": "{{base_url}}/api/v1/dashboard?warehouseId={{warehouse_id}}" } },
+        { "name": "Stock summary", "request": { "method": "GET", "url": "{{base_url}}/api/v1/reports/stocks/summary?warehouseId={{warehouse_id}}" } },
+        { "name": "Stock balances", "request": { "method": "GET", "url": "{{base_url}}/api/v1/inventory/stocks?page=1&size=10&sort=created_at&order=desc&search=DEMO" } },
+        { "name": "Stock movements", "request": { "method": "GET", "url": "{{base_url}}/api/v1/reports/movements?page=1&size=10&warehouseId={{warehouse_id}}&order=desc" } },
+        {
+          "name": "Queue stock export",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"warehouse_id\": \"{{warehouse_id}}\",\n  \"report_type\": \"STOCKS\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/v1/reports/exports" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('export accepted', function () { pm.response.to.have.status(202); });", "pm.collectionVariables.set('export_id', pm.response.json().data.id);"] } }]
+        },
+        { "name": "Get export status", "request": { "method": "GET", "url": "{{base_url}}/api/v1/reports/exports/{{export_id}}" } },
+        { "name": "Download completed CSV", "request": { "method": "GET", "url": "{{base_url}}/api/v1/reports/exports/{{export_id}}/download" } }
+      ]
+    }
+  ]
+}

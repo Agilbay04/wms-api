@@ -61,6 +61,7 @@ sourceSets {
 		java.include '**/outbound/OutboundIntegrationTest.java'
 		java.include '**/reporting/ReportingIntegrationTest.java'
 		java.include '**/audit/AuditTrailIntegrationTest.java'
+		java.include '**/export/ExportJobIntegrationTest.java'
 		compileClasspath += sourceSets.main.output
 		runtimeClasspath += sourceSets.main.output
 	}

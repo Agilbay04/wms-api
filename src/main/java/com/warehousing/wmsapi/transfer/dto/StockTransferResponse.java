@@ -1,6 +1,6 @@
 package com.warehousing.wmsapi.transfer.dto;
 
-import com.warehousing.wmsapi.transfer.StockTransferStatus;
+import com.warehousing.wmsapi.transfer.enums.StockTransferStatus;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;

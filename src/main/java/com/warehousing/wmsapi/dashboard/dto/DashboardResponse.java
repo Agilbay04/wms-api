@@ -1,4 +1,4 @@
-package com.warehousing.wmsapi.reporting.dto;
+package com.warehousing.wmsapi.dashboard.dto;
 
 import java.util.Map;
 import java.util.UUID;

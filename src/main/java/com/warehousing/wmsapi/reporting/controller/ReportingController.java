@@ -1,14 +1,15 @@
-package com.warehousing.wmsapi.reporting;
+package com.warehousing.wmsapi.reporting.controller;
 
 import com.warehousing.wmsapi.common.api.ApiResponse;
 import com.warehousing.wmsapi.common.api.PageResponse;
 import com.warehousing.wmsapi.inventory.StockBalanceResponse;
 import com.warehousing.wmsapi.inventory.StockMovementResponse;
-import com.warehousing.wmsapi.reporting.dto.DashboardResponse;
 import com.warehousing.wmsapi.reporting.dto.StockReportRequest;
 import com.warehousing.wmsapi.reporting.dto.StockMovementReportRequest;
 import com.warehousing.wmsapi.reporting.dto.StockSummaryResponse;
+import com.warehousing.wmsapi.reporting.service.StockReportService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springdoc.core.annotations.ParameterObject;
@@ -22,26 +23,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1")
+@Tag(name = "Reports", description = "Query stock summaries, balances, and movement history.")
+@RequestMapping("/api/v1/reports")
 @SecurityRequirement(name = "bearerAuth")
 public class ReportingController {
-    private final DashboardService dashboardService;
     private final StockReportService stockReportService;
 
-    public ReportingController(DashboardService dashboardService, StockReportService stockReportService) {
-        this.dashboardService = dashboardService;
+    public ReportingController(StockReportService stockReportService) {
         this.stockReportService = stockReportService;
     }
 
-    @GetMapping("/dashboard")
-    @PreAuthorize("@permissionService.hasPermission(authentication, 'REPORTS', 'READ')")
-    public ApiResponse<DashboardResponse> dashboard(Authentication authentication,
-            @RequestParam UUID warehouseId) {
-        return ApiResponse.success(HttpStatus.OK, "Dashboard retrieved.",
-                dashboardService.get(authentication, warehouseId));
-    }
-
-    @GetMapping("/reports/stocks/summary")
+    @GetMapping("/stocks/summary")
     @PreAuthorize("@permissionService.hasPermission(authentication, 'REPORTS', 'READ')")
     public ApiResponse<StockSummaryResponse> stockSummary(Authentication authentication,
             @RequestParam UUID warehouseId) {
@@ -49,7 +41,7 @@ public class ReportingController {
                 stockReportService.summary(authentication, warehouseId));
     }
 
-    @GetMapping("/reports/stocks")
+    @GetMapping("/stocks")
     @PreAuthorize("@permissionService.hasPermission(authentication, 'REPORTS', 'READ')")
     public ApiResponse<PageResponse<StockBalanceResponse>> stocks(Authentication authentication,
             @Valid @ParameterObject @ModelAttribute StockReportRequest request) {
@@ -57,7 +49,7 @@ public class ReportingController {
                 stockReportService.stocks(authentication, request));
     }
 
-    @GetMapping("/reports/movements")
+    @GetMapping("/movements")
     @PreAuthorize("@permissionService.hasPermission(authentication, 'REPORTS', 'READ')")
     public ApiResponse<PageResponse<StockMovementResponse>> movements(Authentication authentication,
             @Valid @ParameterObject @ModelAttribute StockMovementReportRequest request) {

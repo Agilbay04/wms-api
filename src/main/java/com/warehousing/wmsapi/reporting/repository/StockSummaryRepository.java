@@ -1,4 +1,4 @@
-package com.warehousing.wmsapi.reporting;
+package com.warehousing.wmsapi.reporting.repository;
 
 import com.warehousing.wmsapi.reporting.dto.StockSummaryResponse;
 import java.util.UUID;
@@ -7,10 +7,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class StockSummaryCache {
+public class StockSummaryRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    public StockSummaryCache(JdbcTemplate jdbcTemplate) {
+    public StockSummaryRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

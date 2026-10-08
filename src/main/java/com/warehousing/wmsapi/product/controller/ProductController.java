@@ -8,6 +8,7 @@ import com.warehousing.wmsapi.common.api.ApiResponse;
 import com.warehousing.wmsapi.common.api.PageResponse;
 import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Products", description = "Maintain the product catalog.")
 @RequestMapping("/api/v1/products")
 @SecurityRequirement(name = "bearerAuth")
 public class ProductController {

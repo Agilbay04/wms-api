@@ -1,4 +1,4 @@
-package com.warehousing.wmsapi.reporting;
+package com.warehousing.wmsapi.reporting.service;
 
 import com.warehousing.wmsapi.common.api.PageResponse;
 import com.warehousing.wmsapi.common.error.BusinessException;
@@ -8,6 +8,7 @@ import com.warehousing.wmsapi.inventory.StockMovementResponse;
 import com.warehousing.wmsapi.reporting.dto.StockReportRequest;
 import com.warehousing.wmsapi.reporting.dto.StockMovementReportRequest;
 import com.warehousing.wmsapi.reporting.dto.StockSummaryResponse;
+import com.warehousing.wmsapi.reporting.repository.StockSummaryRepository;
 import com.warehousing.wmsapi.warehouse.service.WarehouseService;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -42,18 +43,18 @@ public class StockReportService {
 
     private final JdbcTemplate jdbcTemplate;
     private final WarehouseService warehouseService;
-    private final StockSummaryCache stockSummaryCache;
+    private final StockSummaryRepository stockSummaryRepository;
 
     public StockReportService(JdbcTemplate jdbcTemplate, WarehouseService warehouseService,
-            StockSummaryCache stockSummaryCache) {
+            StockSummaryRepository stockSummaryRepository) {
         this.jdbcTemplate = jdbcTemplate;
         this.warehouseService = warehouseService;
-        this.stockSummaryCache = stockSummaryCache;
+        this.stockSummaryRepository = stockSummaryRepository;
     }
 
     public StockSummaryResponse summary(Authentication authentication, UUID warehouseId) {
         warehouseService.requireAccess(authentication, warehouseId);
-        return stockSummaryCache.get(warehouseId);
+        return stockSummaryRepository.get(warehouseId);
     }
 
     @Transactional(readOnly = true)

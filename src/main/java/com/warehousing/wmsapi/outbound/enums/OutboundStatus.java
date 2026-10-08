@@ -1,4 +1,4 @@
-package com.warehousing.wmsapi.outbound;
+package com.warehousing.wmsapi.outbound.enums;
 
 public enum OutboundStatus {
     PENDING,

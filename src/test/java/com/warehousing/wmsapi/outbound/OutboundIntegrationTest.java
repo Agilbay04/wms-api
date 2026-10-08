@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.warehousing.wmsapi.common.error.BusinessException;
 import com.warehousing.wmsapi.outbound.dto.OutboundCreateRequest;
+import com.warehousing.wmsapi.outbound.enums.OutboundStatus;
 import com.warehousing.wmsapi.outbound.dto.OutboundItemRequest;
 import com.warehousing.wmsapi.outbound.dto.OutboundRejectRequest;
 import com.warehousing.wmsapi.outbound.dto.OutboundResponse;

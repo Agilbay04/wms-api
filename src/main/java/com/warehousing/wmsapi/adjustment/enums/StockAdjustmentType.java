@@ -1,4 +1,4 @@
-package com.warehousing.wmsapi.adjustment;
+package com.warehousing.wmsapi.adjustment.enums;
 
 public enum StockAdjustmentType {
     STOCK_OPNAME,

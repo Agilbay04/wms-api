@@ -1,4 +1,4 @@
-package com.warehousing.wmsapi.inbound.entity;
+package com.warehousing.wmsapi.inbound.enums;
 
 public enum InboundStatus {
     PENDING,

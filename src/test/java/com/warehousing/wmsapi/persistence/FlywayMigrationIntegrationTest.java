@@ -20,7 +20,8 @@ class FlywayMigrationIntegrationTest {
             "users",
             "warehouse_location_items",
             "stock_movements",
-            "audit_trails"
+            "audit_trails",
+            "export_jobs"
     );
 
     @Test
@@ -61,9 +62,9 @@ class FlywayMigrationIntegrationTest {
                     .load();
             MigrateResult result = flyway.migrate();
 
-            assertEquals(8, result.migrationsExecuted, "Expected all eight checked-in migrations to run.");
+            assertEquals(9, result.migrationsExecuted, "Expected all nine checked-in migrations to run.");
             flyway.validate();
-            assertEquals("8", flyway.info().current().getVersion().getVersion());
+            assertEquals("9", flyway.info().current().getVersion().getVersion());
 
             try (Connection connection = DriverManager.getConnection(
                     jdbcUrl, settings.username(), settings.password())) {

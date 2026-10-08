@@ -5,7 +5,7 @@ import com.warehousing.wmsapi.common.error.BusinessException;
 import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import com.warehousing.wmsapi.inventory.StockBalanceService;
 import com.warehousing.wmsapi.inventory.StockMovementService;
-import com.warehousing.wmsapi.outbound.OutboundStatus;
+import com.warehousing.wmsapi.outbound.enums.OutboundStatus;
 import com.warehousing.wmsapi.outbound.dto.OutboundCreateRequest;
 import com.warehousing.wmsapi.outbound.dto.OutboundItemRequest;
 import com.warehousing.wmsapi.outbound.dto.OutboundListItemResponse;

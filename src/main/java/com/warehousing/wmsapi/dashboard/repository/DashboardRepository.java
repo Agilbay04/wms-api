@@ -1,6 +1,6 @@
-package com.warehousing.wmsapi.reporting;
+package com.warehousing.wmsapi.dashboard.repository;
 
-import com.warehousing.wmsapi.reporting.dto.DashboardResponse;
+import com.warehousing.wmsapi.dashboard.dto.DashboardResponse;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -9,10 +9,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DashboardCache {
+public class DashboardRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    public DashboardCache(JdbcTemplate jdbcTemplate) {
+    public DashboardRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

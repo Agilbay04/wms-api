@@ -45,4 +45,9 @@ exports/
 seed-results/
 
 # Local reference documentation
-/docs/
+/docs/*
+!/docs/openapi/
+!/docs/openapi/openapi.yaml
+!/docs/postman/
+!/docs/postman/warehouse-management.postman_collection.json
+/docs/dot-plugin/

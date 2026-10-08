@@ -1,6 +1,6 @@
 package com.warehousing.wmsapi.adjustment.service;
 
-import com.warehousing.wmsapi.adjustment.StockAdjustmentStatus;
+import com.warehousing.wmsapi.adjustment.enums.StockAdjustmentStatus;
 import com.warehousing.wmsapi.adjustment.dto.StockAdjustmentCreateRequest;
 import com.warehousing.wmsapi.adjustment.dto.StockAdjustmentItemRequest;
 import com.warehousing.wmsapi.adjustment.dto.StockAdjustmentListItemResponse;

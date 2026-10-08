@@ -4,6 +4,7 @@ import com.warehousing.wmsapi.common.api.ApiResponse;
 import com.warehousing.wmsapi.common.api.PageResponse;
 import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Inventory", description = "Query warehouse stock balances and stock movements.")
 @RequestMapping("/api/v1/inventory")
 @SecurityRequirement(name = "bearerAuth")
 public class StockMovementController {

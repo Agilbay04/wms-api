@@ -46,6 +46,7 @@ public final class IntegrationTestDatabase {
         registry.add("spring.flyway.create-schemas", () -> "false");
         registry.add("spring.jpa.properties.hibernate.default_schema", () -> schema);
         registry.add("spring.cache.type", () -> "simple");
+        registry.add("app.export-poll-delay", () -> "3600000");
     }
 
     public static void dropSchema(String schema) throws Exception {

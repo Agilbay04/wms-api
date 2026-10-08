@@ -8,6 +8,8 @@ import com.warehousing.wmsapi.adjustment.dto.StockAdjustmentItemRequest;
 import com.warehousing.wmsapi.adjustment.dto.StockAdjustmentRejectRequest;
 import com.warehousing.wmsapi.adjustment.dto.StockAdjustmentResponse;
 import com.warehousing.wmsapi.adjustment.dto.StockAdjustmentUpdateRequest;
+import com.warehousing.wmsapi.adjustment.enums.StockAdjustmentStatus;
+import com.warehousing.wmsapi.adjustment.enums.StockAdjustmentType;
 import com.warehousing.wmsapi.adjustment.service.StockAdjustmentService;
 import com.warehousing.wmsapi.common.error.BusinessException;
 import com.warehousing.wmsapi.persistence.IntegrationTestDatabase;

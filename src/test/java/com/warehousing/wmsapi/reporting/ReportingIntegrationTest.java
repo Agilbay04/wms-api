@@ -8,6 +8,8 @@ import com.warehousing.wmsapi.outbound.service.OutboundService;
 import com.warehousing.wmsapi.persistence.IntegrationTestDatabase;
 import com.warehousing.wmsapi.reporting.dto.StockReportRequest;
 import com.warehousing.wmsapi.reporting.dto.StockMovementReportRequest;
+import com.warehousing.wmsapi.dashboard.service.DashboardService;
+import com.warehousing.wmsapi.reporting.service.StockReportService;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
