@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +47,7 @@ public class StockAdjustmentService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public StockAdjustmentResponse create(Authentication authentication, StockAdjustmentCreateRequest request) {
         WarehouseEntity warehouse = activeWarehouse(authentication, request.warehouseId());
         String reason = normalizedReason(request.reason());
@@ -70,6 +72,7 @@ public class StockAdjustmentService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public StockAdjustmentResponse update(Authentication authentication, UUID id,
             StockAdjustmentUpdateRequest request) {
         Header header = repository.lockHeader(id);
@@ -86,6 +89,7 @@ public class StockAdjustmentService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public void delete(Authentication authentication, UUID id) {
         Header header = repository.lockHeader(id);
         ensureOwner(authentication, header);
@@ -99,6 +103,7 @@ public class StockAdjustmentService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public StockAdjustmentResponse submit(Authentication authentication, UUID id) {
         Header header = repository.lockHeader(id);
         ensureOwner(authentication, header);
@@ -121,6 +126,7 @@ public class StockAdjustmentService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public StockAdjustmentResponse approve(Authentication authentication, UUID id) {
         Header header = repository.lockHeader(id);
         activeWarehouse(authentication, header.warehouseId());
@@ -147,6 +153,7 @@ public class StockAdjustmentService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public StockAdjustmentResponse reject(Authentication authentication, UUID id, StockAdjustmentRejectRequest request) {
         Header header = repository.lockHeader(id);
         warehouseService.requireAccess(authentication, header.warehouseId());

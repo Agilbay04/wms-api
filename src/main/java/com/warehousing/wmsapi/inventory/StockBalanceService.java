@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ public class StockBalanceService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"dashboards", "stock-summaries"}, key = "#warehouseId")
     public int addStock(UUID warehouseId, UUID locationId, UUID productId, int quantity) {
         StockBalanceRepository.Balance balance = repository.lockOrCreate(warehouseId, locationId, productId);
         int updatedQuantity = balance.quantity() + quantity;
@@ -28,6 +30,7 @@ public class StockBalanceService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"dashboards", "stock-summaries"}, allEntries = true)
     public int deductStock(UUID locationId, UUID productId, int quantity) {
         if (quantity < 1) {
             throw new IllegalArgumentException("Stock deduction quantity must be positive.");
@@ -43,6 +46,7 @@ public class StockBalanceService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"dashboards", "stock-summaries"}, key = "#warehouseId")
     public List<Integer> deductAll(UUID warehouseId, List<DeductionLine> lines) {
         List<BalanceKey> keys = lines.stream()
                 .map(line -> new BalanceKey(line.locationId(), line.productId())).distinct()
@@ -82,6 +86,7 @@ public class StockBalanceService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"dashboards", "stock-summaries"}, key = "#warehouseId")
     public List<TransferBalanceResult> moveStock(UUID warehouseId, List<TransferLine> lines) {
         List<BalanceKey> keys = new ArrayList<>();
         for (TransferLine line : lines) {
@@ -129,6 +134,7 @@ public class StockBalanceService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"dashboards", "stock-summaries"}, key = "#warehouseId")
     public List<Integer> applyAdjustments(UUID warehouseId, List<AdjustmentLine> lines) {
         List<BalanceKey> keys = lines.stream()
                 .map(line -> new BalanceKey(line.locationId(), line.productId())).distinct()

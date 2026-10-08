@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +53,7 @@ public class InboundServiceImpl implements InboundService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public InboundResponse create(Authentication authentication, InboundCreateRequest request) {
         activeWarehouse(authentication, request.warehouseId());
         List<InboundItemInput> items = validateItems(request.items());
@@ -79,6 +81,7 @@ public class InboundServiceImpl implements InboundService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public InboundResponse update(Authentication authentication, UUID id, InboundUpdateRequest request) {
         Header header = repository.lockHeader(id);
         ensureOwner(authentication, header);
@@ -94,6 +97,7 @@ public class InboundServiceImpl implements InboundService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public void delete(Authentication authentication, UUID id) {
         Header header = repository.lockHeader(id);
         ensureOwner(authentication, header);
@@ -108,6 +112,7 @@ public class InboundServiceImpl implements InboundService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public InboundResponse submit(Authentication authentication, UUID id) {
         Header header = repository.lockHeader(id);
         ensureOwner(authentication, header);
@@ -127,6 +132,7 @@ public class InboundServiceImpl implements InboundService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public InboundResponse approve(Authentication authentication, UUID id) {
         Header header = repository.lockHeader(id);
         warehouseService.requireAccess(authentication, header.warehouseId());
@@ -140,6 +146,7 @@ public class InboundServiceImpl implements InboundService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public InboundResponse reject(Authentication authentication, UUID id, InboundRejectRequest request) {
         Header header = repository.lockHeader(id);
         warehouseService.requireAccess(authentication, header.warehouseId());
@@ -153,6 +160,7 @@ public class InboundServiceImpl implements InboundService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public InboundResponse putaway(Authentication authentication, UUID id, InboundPutawayRequest request) {
         Header header = repository.lockHeader(id);
         activeWarehouse(authentication, header.warehouseId());

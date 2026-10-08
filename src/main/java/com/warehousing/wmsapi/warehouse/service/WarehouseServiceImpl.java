@@ -49,7 +49,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "warehouses", allEntries = true)
+    @CacheEvict(cacheNames = {"warehouses", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public WarehouseResponse create(WarehouseRequest request) {
         ensureCodeAvailable(request.code());
@@ -111,7 +111,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "warehouses", allEntries = true)
+    @CacheEvict(cacheNames = {"warehouses", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public WarehouseResponse update(Authentication authentication, UUID id, WarehouseRequest request) {
         requireAccess(authentication, id);
@@ -124,7 +124,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "warehouses", allEntries = true)
+    @CacheEvict(cacheNames = {"warehouses", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public void delete(Authentication authentication, UUID id) {
         requireAccess(authentication, id);

@@ -34,7 +34,7 @@ public class WarehouseLocationServiceImpl implements WarehouseLocationService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "locations", allEntries = true)
+    @CacheEvict(cacheNames = {"locations", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public LocationResponse create(Authentication authentication, UUID warehouseId, LocationRequest request) {
         WarehouseEntity warehouse = accessibleActiveWarehouse(authentication, warehouseId);
@@ -60,7 +60,7 @@ public class WarehouseLocationServiceImpl implements WarehouseLocationService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "locations", allEntries = true)
+    @CacheEvict(cacheNames = {"locations", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public LocationResponse update(Authentication authentication, UUID warehouseId, UUID id, LocationRequest request) {
         accessibleActiveWarehouse(authentication, warehouseId);
@@ -73,7 +73,7 @@ public class WarehouseLocationServiceImpl implements WarehouseLocationService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "locations", allEntries = true)
+    @CacheEvict(cacheNames = {"locations", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public void delete(Authentication authentication, UUID warehouseId, UUID id) {
         warehouseService.requireAccess(authentication, warehouseId);

@@ -30,7 +30,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "categories", allEntries = true)
+    @CacheEvict(cacheNames = {"categories", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public CategoryResponse create(CategoryRequest request) {
         ensureCodeAvailable(request.code());
@@ -58,7 +58,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public CategoryResponse get(UUID id) { return CategoryResponse.from(find(id)); }
 
     @Transactional
-    @CacheEvict(cacheNames = {"categories", "products"}, allEntries = true)
+    @CacheEvict(cacheNames = {"categories", "products", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public CategoryResponse update(UUID id, CategoryRequest request) {
         ProductCategoryEntity category = find(id);
@@ -75,7 +75,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = {"categories", "products"}, allEntries = true)
+    @CacheEvict(cacheNames = {"categories", "products", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public void delete(UUID id) {
         ProductCategoryEntity category = find(id);

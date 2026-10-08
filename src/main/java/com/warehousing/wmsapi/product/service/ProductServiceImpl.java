@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "products", allEntries = true)
+    @CacheEvict(cacheNames = {"products", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public ProductResponse create(ProductRequest request) {
         ensureSkuAvailable(request.sku());
@@ -67,7 +67,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "products", allEntries = true)
+    @CacheEvict(cacheNames = {"products", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public ProductResponse update(UUID id, ProductRequest request) {
         ProductEntity product = find(id);
@@ -80,7 +80,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "products", allEntries = true)
+    @CacheEvict(cacheNames = {"products", "dashboards", "stock-summaries"}, allEntries = true)
     @Override
     public void delete(UUID id) {
         ProductEntity product = find(id);

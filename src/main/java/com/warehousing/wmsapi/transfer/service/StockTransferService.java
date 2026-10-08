@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +47,7 @@ public class StockTransferService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public StockTransferResponse create(Authentication authentication, StockTransferCreateRequest request) {
         activeWarehouse(authentication, request.warehouseId());
         List<ItemInput> items = validateItems(request.warehouseId(), request.items());
@@ -69,6 +71,7 @@ public class StockTransferService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public StockTransferResponse update(Authentication authentication, UUID id, StockTransferUpdateRequest request) {
         Header header = repository.lockHeader(id);
         ensureOwner(authentication, header);
@@ -83,6 +86,7 @@ public class StockTransferService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public void delete(Authentication authentication, UUID id) {
         Header header = repository.lockHeader(id);
         ensureOwner(authentication, header);
@@ -96,6 +100,7 @@ public class StockTransferService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public StockTransferResponse submit(Authentication authentication, UUID id) {
         Header header = repository.lockHeader(id);
         ensureOwner(authentication, header);
@@ -114,6 +119,7 @@ public class StockTransferService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public StockTransferResponse approve(Authentication authentication, UUID id) {
         Header header = repository.lockHeader(id);
         activeWarehouse(authentication, header.warehouseId());
@@ -145,6 +151,7 @@ public class StockTransferService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "dashboards", allEntries = true)
     public StockTransferResponse reject(Authentication authentication, UUID id, StockTransferRejectRequest request) {
         Header header = repository.lockHeader(id);
         warehouseService.requireAccess(authentication, header.warehouseId());
