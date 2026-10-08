@@ -8,7 +8,7 @@ help:
 	@printf '%s\n' 'Available commands:' \
 		'  make run          Start Spring Boot locally using .env' \
 		'  make test         Run all unit tests' \
-		'  make integration-test Run the opt-in Flyway migration integration test' \
+		'  make integration-test Run opt-in Flyway and inbound integration tests' \
 		'  make build        Build the executable JAR' \
 		'  make docker-build Build the Docker image' \
 		'  make docker-up    Start wms-api with Docker Compose' \
@@ -33,7 +33,7 @@ integration-test: check-env
 	if [ -z "$${WMS_TEST_DB_HOST:-}" ] || [ -z "$${WMS_TEST_DB_USERNAME:-}" ]; then \
 		echo "Set WMS_TEST_DB_HOST and WMS_TEST_DB_USERNAME in .env first."; exit 1; \
 	fi; \
-	$(GRADLE) integrationTest --rerun-tasks --tests '*FlywayMigrationIntegrationTest'
+	$(GRADLE) integrationTest --rerun-tasks --tests '*FlywayMigrationIntegrationTest' --tests '*InboundIntegrationTest'
 
 build:
 	$(GRADLE) bootJar
