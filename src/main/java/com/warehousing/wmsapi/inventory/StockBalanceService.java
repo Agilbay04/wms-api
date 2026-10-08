@@ -43,6 +43,45 @@ public class StockBalanceService {
     }
 
     @Transactional
+    public List<Integer> deductAll(UUID warehouseId, List<DeductionLine> lines) {
+        List<BalanceKey> keys = lines.stream()
+                .map(line -> new BalanceKey(line.locationId(), line.productId())).distinct()
+                .sorted(Comparator.comparing((BalanceKey key) -> key.locationId())
+                        .thenComparing(key -> key.productId()))
+                .toList();
+        Map<BalanceKey, StockBalanceRepository.Balance> locked = new HashMap<>();
+        for (BalanceKey key : keys) {
+            StockBalanceRepository.Balance balance = repository.lock(key.locationId(), key.productId());
+            if (balance != null) {
+                locked.put(key, balance);
+            }
+        }
+        List<Integer> updatedQuantities = new ArrayList<>();
+        for (DeductionLine line : lines) {
+            if (line.quantity() < 1) {
+                throw new BusinessException(HttpStatus.UNPROCESSABLE_CONTENT, "INVALID_OUTBOUND_QUANTITY",
+                        "Outbound quantity must be positive.");
+            }
+            StockBalanceRepository.Balance balance = locked.get(new BalanceKey(line.locationId(), line.productId()));
+            if (balance == null || balance.quantity() < line.quantity()) {
+                throw new BusinessException(HttpStatus.UNPROCESSABLE_CONTENT, "INSUFFICIENT_STOCK",
+                        "There is not enough stock to approve this outbound.");
+            }
+            updatedQuantities.add(balance.quantity() - line.quantity());
+        }
+        for (int index = 0; index < lines.size(); index++) {
+            DeductionLine line = lines.get(index);
+            BalanceKey key = new BalanceKey(line.locationId(), line.productId());
+            StockBalanceRepository.Balance balance = locked.get(key);
+            int updated = updatedQuantities.get(index);
+            repository.updateQuantity(balance.id(), updated);
+            locked.put(key, new StockBalanceRepository.Balance(balance.id(), warehouseId,
+                    balance.locationId(), balance.productId(), updated));
+        }
+        return updatedQuantities;
+    }
+
+    @Transactional
     public List<TransferBalanceResult> moveStock(UUID warehouseId, List<TransferLine> lines) {
         List<BalanceKey> keys = new ArrayList<>();
         for (TransferLine line : lines) {
@@ -137,6 +176,9 @@ public class StockBalanceService {
     }
 
     public record AdjustmentLine(UUID productId, UUID locationId, int quantityChange) {
+    }
+
+    public record DeductionLine(UUID productId, UUID locationId, int quantity) {
     }
 
     private record BalanceKey(UUID locationId, UUID productId) {
