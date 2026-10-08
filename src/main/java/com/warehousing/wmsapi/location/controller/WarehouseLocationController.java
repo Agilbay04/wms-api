@@ -6,21 +6,23 @@ import com.warehousing.wmsapi.location.dto.LocationResponse;
 
 import com.warehousing.wmsapi.common.api.ApiResponse;
 import com.warehousing.wmsapi.common.api.PageResponse;
+import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,10 +44,9 @@ public class WarehouseLocationController {
     @GetMapping
     @PreAuthorize("@permissionService.hasPermission(authentication, 'WAREHOUSE_LOCATIONS', 'READ')")
     public ApiResponse<PageResponse<LocationResponse>> list(Authentication authentication,
-            @PathVariable UUID warehouseId, @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "code") String sort) {
+            @PathVariable UUID warehouseId, @Valid @ParameterObject @ModelAttribute BasePageRequest request) {
         return ApiResponse.success(HttpStatus.OK, "Warehouse locations retrieved.",
-                service.list(authentication, warehouseId, page, size, sort));
+                service.list(authentication, warehouseId, request));
     }
 
     @GetMapping("/{id}")

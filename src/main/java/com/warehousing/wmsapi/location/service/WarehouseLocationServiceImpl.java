@@ -7,6 +7,7 @@ import com.warehousing.wmsapi.location.dto.LocationResponse;
 
 import com.warehousing.wmsapi.common.api.PageResponse;
 import com.warehousing.wmsapi.common.error.BusinessException;
+import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import com.warehousing.wmsapi.common.pagination.MasterPage;
 import com.warehousing.wmsapi.warehouse.entity.WarehouseEntity;
 import com.warehousing.wmsapi.warehouse.service.WarehouseService;
@@ -44,12 +45,16 @@ public class WarehouseLocationServiceImpl implements WarehouseLocationService {
     @Transactional(readOnly = true)
     @Override
     public PageResponse<LocationResponse> list(Authentication authentication, UUID warehouseId,
-                                               int page, int size, String sort) {
+                                               BasePageRequest request) {
         warehouseService.requireAccess(authentication, warehouseId);
         warehouseService.find(warehouseId);
-        var result = repository.findAllByWarehouse_IdAndDeletedAtIsNull(warehouseId,
-                MasterPage.of(page, size, sort, SORT_FIELDS));
-        return new PageResponse<>(result.map(LocationResponse::from).getContent(), page, size,
+        String search = MasterPage.normalizeSearch(request.getSearch());
+        var pageable = MasterPage.of(
+                request.getPage(), request.getSize(), request.getSort(), request.getOrder(), SORT_FIELDS);
+        var result = search == null
+                ? repository.findAllByWarehouse_IdAndDeletedAtIsNull(warehouseId, pageable)
+                : repository.searchActiveByWarehouse(warehouseId, search, pageable);
+        return new PageResponse<>(result.map(LocationResponse::from).getContent(), request.getPage(), request.getSize(),
                 result.getTotalElements(), result.getTotalPages());
     }
 

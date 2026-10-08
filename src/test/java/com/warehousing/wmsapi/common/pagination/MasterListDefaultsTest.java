@@ -6,14 +6,16 @@ import com.warehousing.wmsapi.product.controller.ProductController;
 import com.warehousing.wmsapi.warehouse.controller.WarehouseController;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class MasterListDefaultsTest {
 
     @Test
-    void allMasterListsDefaultToFirstPageAndTenItems() {
+    void allMasterListsUseOptionalSharedRequestWithPaginationDefaults() {
         for (Class<?> controller : new Class<?>[] {
                 ProductCategoryController.class,
                 ProductController.class,
@@ -23,16 +25,17 @@ class MasterListDefaultsTest {
             Method listMethod = java.util.Arrays.stream(controller.getDeclaredMethods())
                     .filter(method -> method.getName().equals("list"))
                     .findFirst().orElseThrow();
-            String[] defaults = java.util.Arrays.stream(listMethod.getParameters())
-                    .map(parameter -> parameter.getAnnotations())
-                    .flatMap(java.util.Arrays::stream)
-                    .filter(annotation -> annotation instanceof RequestParam)
-                    .map(annotation -> ((RequestParam) annotation).defaultValue())
-                    .toArray(String[]::new);
-
-            assertEquals("1", defaults[0], controller.getSimpleName());
-            assertEquals("10", defaults[
-                1], controller.getSimpleName());
+            var requestParameter = java.util.Arrays.stream(listMethod.getParameters())
+                    .filter(parameter -> parameter.getType() == BasePageRequest.class)
+                    .findFirst().orElseThrow();
+            assertNotNull(requestParameter.getAnnotation(ModelAttribute.class), controller.getSimpleName());
         }
+
+        BasePageRequest request = new BasePageRequest();
+        assertEquals(1, request.getPage());
+        assertEquals(10, request.getSize());
+        assertEquals("created_at", request.getSort());
+        assertEquals("desc", request.getOrder());
+        assertNull(request.getSearch());
     }
 }

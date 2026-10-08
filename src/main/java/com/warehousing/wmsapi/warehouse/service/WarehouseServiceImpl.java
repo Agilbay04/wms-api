@@ -7,7 +7,12 @@ import com.warehousing.wmsapi.warehouse.dto.WarehouseResponse;
 
 import com.warehousing.wmsapi.common.api.PageResponse;
 import com.warehousing.wmsapi.common.error.BusinessException;
+import com.warehousing.wmsapi.common.pagination.BasePageRequest;
+import com.warehousing.wmsapi.common.pagination.MasterPage;
 import com.warehousing.wmsapi.common.security.WarehouseAccessService;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -18,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WarehouseServiceImpl implements WarehouseService {
-    private static final Set<String> SORT_FIELDS = Set.of("code", "name", "createdAt");
+    private static final Set<String> SORT_FIELDS = Set.of("code", "name", "createdAt", "created_at");
     private static final String VISIBLE_WAREHOUSES = """
             FROM warehouses w
             JOIN users u ON u.email = ? AND u.deleted_at IS NULL AND u.is_active
@@ -51,28 +56,46 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<WarehouseResponse> list(Authentication authentication, int page, int size, String sort) {
-        if (page < 1 || size < 1 || size > 100 || !SORT_FIELDS.contains(sort)) {
+    public PageResponse<WarehouseResponse> list(Authentication authentication, BasePageRequest request) {
+        String search = MasterPage.normalizeSearch(request.getSearch());
+        String searchPattern = search == null ? null : "%" + search + "%";
+        if (request.getPage() < 1 || request.getSize() < 1 || request.getSize() > 100
+                || !SORT_FIELDS.contains(request.getSort())) {
             throw new BusinessException(HttpStatus.BAD_REQUEST, "INVALID_PAGE_REQUEST",
                     "Use page >= 1, size 1-100, and a supported sort field.");
         }
-        String sortColumn = switch (sort) {
+        String sortColumn = switch (request.getSort()) {
             case "name" -> "w.name";
-            case "createdAt" -> "w.created_at";
+            case "createdAt", "created_at" -> "w.created_at";
             default -> "w.code";
         };
-        Long total = jdbcTemplate.queryForObject("SELECT count(*) " + VISIBLE_WAREHOUSES,
-                Long.class, authentication.getName());
-        var content = jdbcTemplate.query("""
-                        SELECT w.id, w.code, w.name, w.address, w.is_active
-                        """ + VISIBLE_WAREHOUSES + " ORDER BY " + sortColumn + ", w.id LIMIT ? OFFSET ?",
+        String sortDirection = MasterPage.parseDirection(request.getOrder()).name();
+        String searchFilter = searchPattern == null ? ""
+                : " AND (w.code ILIKE ? OR w.name ILIKE ? OR COALESCE(w.address, '') ILIKE ?)";
+        List<Object> queryArguments = new ArrayList<>();
+        queryArguments.add(authentication.getName());
+        if (searchPattern != null) {
+            queryArguments.add(searchPattern);
+            queryArguments.add(searchPattern);
+            queryArguments.add(searchPattern);
+        }
+        Long total = jdbcTemplate.queryForObject("SELECT count(*) " + VISIBLE_WAREHOUSES + searchFilter,
+                Long.class, queryArguments.toArray());
+        String contentSql = """
+                        SELECT w.id, w.code, w.name, w.address, w.is_active, w.created_at
+                        """ + VISIBLE_WAREHOUSES + searchFilter + " ORDER BY " + sortColumn + " " + sortDirection
+                        + ", w.id LIMIT ? OFFSET ?";
+        queryArguments.add(request.getSize());
+        queryArguments.add((long) (request.getPage() - 1) * request.getSize());
+        var content = jdbcTemplate.query(contentSql,
                 (row, index) -> new WarehouseResponse(
                         row.getObject("id", UUID.class), row.getString("code"), row.getString("name"),
-                        row.getString("address"), row.getBoolean("is_active")),
-                authentication.getName(), size, (long) (page - 1) * size);
+                        row.getString("address"), row.getBoolean("is_active"),
+                        row.getObject("created_at", OffsetDateTime.class)),
+                queryArguments.toArray());
         long totalElements = total == null ? 0 : total;
-        int totalPages = (int) ((totalElements + size - 1) / size);
-        return new PageResponse<>(content, page, size, totalElements, totalPages);
+        int totalPages = (int) ((totalElements + request.getSize() - 1) / request.getSize());
+        return new PageResponse<>(content, request.getPage(), request.getSize(), totalElements, totalPages);
     }
 
     @Transactional(readOnly = true)

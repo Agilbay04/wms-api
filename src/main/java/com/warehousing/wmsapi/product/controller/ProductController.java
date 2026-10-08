@@ -6,20 +6,22 @@ import com.warehousing.wmsapi.product.dto.ProductResponse;
 
 import com.warehousing.wmsapi.common.api.ApiResponse;
 import com.warehousing.wmsapi.common.api.PageResponse;
+import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,10 +44,8 @@ public class ProductController {
     @GetMapping
     @PreAuthorize("@permissionService.hasPermission(authentication, 'PRODUCTS', 'READ')")
     public ApiResponse<PageResponse<ProductResponse>> list(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "sku") String sort) {
-        return ApiResponse.success(HttpStatus.OK, "Products retrieved.", service.list(page, size, sort));
+            @Valid @ParameterObject @ModelAttribute BasePageRequest request) {
+        return ApiResponse.success(HttpStatus.OK, "Products retrieved.", service.list(request));
     }
 
     @GetMapping("/{id}")

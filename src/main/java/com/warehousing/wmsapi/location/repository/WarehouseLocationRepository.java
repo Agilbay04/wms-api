@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface WarehouseLocationRepository extends JpaRepository<WarehouseLocationEntity, UUID> {
     @EntityGraph(attributePaths = "warehouse")
@@ -18,4 +20,14 @@ public interface WarehouseLocationRepository extends JpaRepository<WarehouseLoca
 
     @EntityGraph(attributePaths = "warehouse")
     Page<WarehouseLocationEntity> findAllByWarehouse_IdAndDeletedAtIsNull(UUID warehouseId, Pageable pageable);
+
+    @EntityGraph(attributePaths = "warehouse")
+    @Query("""
+            select l from WarehouseLocationEntity l
+            where l.warehouse.id = :warehouseId and l.deletedAt is null and (lower(l.code) like lower(concat('%', :search, '%'))
+                or lower(l.name) like lower(concat('%', :search, '%'))
+                or lower(coalesce(l.description, '')) like lower(concat('%', :search, '%')))
+            """)
+    Page<WarehouseLocationEntity> searchActiveByWarehouse(@Param("warehouseId") UUID warehouseId,
+            @Param("search") String search, Pageable pageable);
 }

@@ -7,6 +7,7 @@ import com.warehousing.wmsapi.category.dto.CategoryResponse;
 
 import com.warehousing.wmsapi.common.api.PageResponse;
 import com.warehousing.wmsapi.common.error.BusinessException;
+import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import com.warehousing.wmsapi.common.pagination.MasterPage;
 import com.warehousing.wmsapi.product.repository.ProductRepository;
 import java.util.Set;
@@ -38,11 +39,17 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(cacheNames = "categories", key = "#page + ':' + #size + ':' + #sort")
+    @Cacheable(cacheNames = "categories",
+            key = "#p0.page + ':' + #p0.size + ':' + #p0.sort + ':' + #p0.order + ':' + #p0.search")
     @Override
-    public PageResponse<CategoryResponse> list(int page, int size, String sort) {
-        var result = repository.findAllByDeletedAtIsNull(MasterPage.of(page, size, sort, SORT_FIELDS));
-        return new PageResponse<>(result.map(CategoryResponse::from).getContent(), page, size,
+    public PageResponse<CategoryResponse> list(BasePageRequest request) {
+        String search = MasterPage.normalizeSearch(request.getSearch());
+        var pageable = MasterPage.of(
+                request.getPage(), request.getSize(), request.getSort(), request.getOrder(), SORT_FIELDS);
+        var result = search == null
+                ? repository.findAllByDeletedAtIsNull(pageable)
+                : repository.searchActive(search, pageable);
+        return new PageResponse<>(result.map(CategoryResponse::from).getContent(), request.getPage(), request.getSize(),
                 result.getTotalElements(), result.getTotalPages());
     }
 
