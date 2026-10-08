@@ -22,4 +22,15 @@ public class StockMovementService {
                 """, warehouseId, locationId, productId, quantity, stockAfter,
                 inboundId, inboundItemId, userId);
     }
+
+    public void recordOutbound(UUID warehouseId, UUID locationId, UUID productId, int quantity,
+                               int stockAfter, UUID sourceEntityId, UUID sourceItemId, UUID userId) {
+        jdbcTemplate.update("""
+                INSERT INTO stock_movements(warehouse_id, warehouse_location_id, product_id,
+                    movement_type, movement_direction, quantity, stock_after,
+                    source_entity_type, source_entity_id, source_item_id, created_by_user_id)
+                VALUES (?, ?, ?, 'OUTBOUND', 'OUT', ?, ?, 'OUTBOUND', ?, ?, ?)
+                """, warehouseId, locationId, productId, quantity, stockAfter,
+                sourceEntityId, sourceItemId, userId);
+    }
 }

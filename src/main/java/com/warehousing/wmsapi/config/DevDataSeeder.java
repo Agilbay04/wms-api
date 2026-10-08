@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile("dev")
 public class DevDataSeeder implements ApplicationRunner {
     private static final List<String> OPERATIONS = List.of("CREATE", "READ", "UPDATE", "DELETE", "APPROVE", "REJECT", "EXPORT");
-    private static final List<String> RESOURCES = List.of("USERS", "ROLES", "PRODUCTS", "PRODUCT_CATEGORIES", "WAREHOUSES", "WAREHOUSE_LOCATIONS", "INBOUNDS", "OUTBOUNDS", "STOCK_TRANSFERS", "STOCK_ADJUSTMENTS", "REPORTS");
+    private static final List<String> RESOURCES = List.of("USERS", "ROLES", "PRODUCTS", "PRODUCT_CATEGORIES", "WAREHOUSES", "WAREHOUSE_LOCATIONS", "INVENTORY", "INBOUNDS", "OUTBOUNDS", "STOCK_TRANSFERS", "STOCK_ADJUSTMENTS", "REPORTS");
     private static final List<String> TRANSACTION_RESOURCES = List.of("INBOUNDS", "OUTBOUNDS", "STOCK_TRANSFERS", "STOCK_ADJUSTMENTS");
-    private static final List<String> MASTER_READ_RESOURCES = List.of("PRODUCTS", "PRODUCT_CATEGORIES", "WAREHOUSES", "WAREHOUSE_LOCATIONS");
+    private static final List<String> MASTER_READ_RESOURCES = List.of("PRODUCTS", "PRODUCT_CATEGORIES", "WAREHOUSES", "WAREHOUSE_LOCATIONS", "INVENTORY");
     private final JdbcTemplate jdbcTemplate;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

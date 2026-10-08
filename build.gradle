@@ -52,7 +52,10 @@ sourceSets {
 	integrationTest {
 		java.srcDir 'src/test/java'
 		java.include '**/persistence/FlywayMigrationIntegrationTest.java'
+		java.include '**/persistence/IntegrationTestDatabase.java'
 		java.include '**/inbound/InboundIntegrationTest.java'
+		java.include '**/inventory/StockConcurrencyIntegrationTest.java'
+		java.include '**/inventory/StockQueryIntegrationTest.java'
 		compileClasspath += sourceSets.main.output
 		runtimeClasspath += sourceSets.main.output
 	}

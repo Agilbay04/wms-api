@@ -1,41 +1,39 @@
 package com.warehousing.wmsapi.inventory;
 
 import java.util.UUID;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.warehousing.wmsapi.common.error.BusinessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class StockBalanceService {
-    private final JdbcTemplate jdbcTemplate;
+    private final StockBalanceRepository repository;
 
-    public StockBalanceService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public StockBalanceService(StockBalanceRepository repository) {
+        this.repository = repository;
     }
 
-    public void lockOrCreate(UUID warehouseId, UUID locationId, UUID productId) {
-        jdbcTemplate.update("""
-                INSERT INTO warehouse_location_items(warehouse_id, warehouse_location_id, product_id, quantity)
-                VALUES (?, ?, ?, 0)
-                ON CONFLICT (warehouse_location_id, product_id) DO UPDATE
-                    SET quantity = CASE WHEN warehouse_location_items.deleted_at IS NULL
-                                        THEN warehouse_location_items.quantity ELSE 0 END,
-                        deleted_at = NULL, updated_at = CURRENT_TIMESTAMP
-                """, warehouseId, locationId, productId);
-        jdbcTemplate.queryForObject("""
-                SELECT id FROM warehouse_location_items
-                WHERE warehouse_location_id = ? AND product_id = ? FOR UPDATE
-                """, UUID.class, locationId, productId);
+    @Transactional
+    public int addStock(UUID warehouseId, UUID locationId, UUID productId, int quantity) {
+        StockBalanceRepository.Balance balance = repository.lockOrCreate(warehouseId, locationId, productId);
+        int updatedQuantity = balance.quantity() + quantity;
+        repository.updateQuantity(balance.id(), updatedQuantity);
+        return updatedQuantity;
     }
 
-    public int add(UUID locationId, UUID productId, int quantity) {
-        jdbcTemplate.update("""
-                UPDATE warehouse_location_items SET quantity = quantity + ?, updated_at = CURRENT_TIMESTAMP
-                WHERE warehouse_location_id = ? AND product_id = ? AND deleted_at IS NULL
-                """, quantity, locationId, productId);
-        Integer balance = jdbcTemplate.queryForObject("""
-                SELECT quantity FROM warehouse_location_items
-                WHERE warehouse_location_id = ? AND product_id = ? AND deleted_at IS NULL
-                """, Integer.class, locationId, productId);
-        return balance == null ? 0 : balance;
+    @Transactional
+    public int deductStock(UUID locationId, UUID productId, int quantity) {
+        if (quantity < 1) {
+            throw new IllegalArgumentException("Stock deduction quantity must be positive.");
+        }
+        StockBalanceRepository.Balance balance = repository.lock(locationId, productId);
+        if (balance == null || balance.quantity() < quantity) {
+            throw new BusinessException(HttpStatus.CONFLICT, "INSUFFICIENT_STOCK",
+                    "There is not enough stock to complete this operation.");
+        }
+        int updatedQuantity = balance.quantity() - quantity;
+        repository.updateQuantity(balance.id(), updatedQuantity);
+        return updatedQuantity;
     }
 }

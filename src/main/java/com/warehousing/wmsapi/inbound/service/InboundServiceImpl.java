@@ -184,8 +184,8 @@ public class InboundServiceImpl implements InboundService {
                 throw new BusinessException(HttpStatus.UNPROCESSABLE_CONTENT, "INACTIVE_PRODUCT",
                         "Inbound items must reference active products when put away.");
             }
-            stockBalanceService.lockOrCreate(header.warehouseId(), locationId, item.productId());
-            int stockAfter = stockBalanceService.add(locationId, item.productId(), item.quantity());
+            int stockAfter = stockBalanceService.addStock(header.warehouseId(), locationId, item.productId(),
+                    item.quantity());
             stockMovementService.recordInbound(header.warehouseId(), locationId, item.productId(), item.quantity(),
                     stockAfter, id, item.id(), userId);
         }
