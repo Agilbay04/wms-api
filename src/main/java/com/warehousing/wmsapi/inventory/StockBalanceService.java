@@ -89,10 +89,54 @@ public class StockBalanceService {
         return result;
     }
 
+    @Transactional
+    public List<Integer> applyAdjustments(UUID warehouseId, List<AdjustmentLine> lines) {
+        List<BalanceKey> keys = lines.stream()
+                .map(line -> new BalanceKey(line.locationId(), line.productId())).distinct()
+                .sorted(Comparator.comparing((BalanceKey key) -> key.locationId())
+                        .thenComparing(key -> key.productId()))
+                .toList();
+        Map<BalanceKey, StockBalanceRepository.Balance> locked = new HashMap<>();
+        for (BalanceKey key : keys) {
+            locked.put(key, repository.lockOrCreate(warehouseId, key.locationId(), key.productId()));
+        }
+        List<Integer> updatedQuantities = new ArrayList<>();
+        for (AdjustmentLine line : lines) {
+            if (line.quantityChange() == 0) {
+                throw new BusinessException(HttpStatus.UNPROCESSABLE_CONTENT, "INVALID_ADJUSTMENT_QUANTITY",
+                        "Adjustment quantity change must not be zero.");
+            }
+            StockBalanceRepository.Balance balance = locked.get(new BalanceKey(line.locationId(), line.productId()));
+            long updated = (long) balance.quantity() + line.quantityChange();
+            if (updated < 0) {
+                throw new BusinessException(HttpStatus.CONFLICT, "NEGATIVE_STOCK_ADJUSTMENT",
+                        "An adjustment cannot reduce stock below zero.");
+            }
+            if (updated > Integer.MAX_VALUE) {
+                throw new BusinessException(HttpStatus.CONFLICT, "STOCK_QUANTITY_OVERFLOW",
+                        "Adjustment would exceed the supported stock quantity.");
+            }
+            updatedQuantities.add((int) updated);
+        }
+        for (int index = 0; index < lines.size(); index++) {
+            AdjustmentLine line = lines.get(index);
+            BalanceKey key = new BalanceKey(line.locationId(), line.productId());
+            StockBalanceRepository.Balance balance = locked.get(key);
+            int updated = updatedQuantities.get(index);
+            repository.updateQuantity(balance.id(), updated);
+            locked.put(key, new StockBalanceRepository.Balance(balance.id(), warehouseId,
+                    balance.locationId(), balance.productId(), updated));
+        }
+        return updatedQuantities;
+    }
+
     public record TransferLine(UUID productId, UUID sourceLocationId, UUID destinationLocationId, int quantity) {
     }
 
     public record TransferBalanceResult(int sourceAfter, int destinationAfter) {
+    }
+
+    public record AdjustmentLine(UUID productId, UUID locationId, int quantityChange) {
     }
 
     private record BalanceKey(UUID locationId, UUID productId) {

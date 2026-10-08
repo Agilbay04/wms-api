@@ -57,6 +57,7 @@ sourceSets {
 		java.include '**/inventory/StockConcurrencyIntegrationTest.java'
 		java.include '**/inventory/StockQueryIntegrationTest.java'
 		java.include '**/transfer/StockTransferIntegrationTest.java'
+		java.include '**/adjustment/StockAdjustmentIntegrationTest.java'
 		compileClasspath += sourceSets.main.output
 		runtimeClasspath += sourceSets.main.output
 	}
