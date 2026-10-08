@@ -12,7 +12,6 @@ import com.warehousing.wmsapi.warehouse.entity.WarehouseEntity;
 import com.warehousing.wmsapi.warehouse.service.WarehouseService;
 import java.util.UUID;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
@@ -26,18 +25,12 @@ public class WarehouseLocationServiceImpl implements WarehouseLocationService {
     private final WarehouseLocationListCache listCache;
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public WarehouseLocationServiceImpl(WarehouseLocationRepository repository, WarehouseService warehouseService,
-                                    WarehouseLocationListCache listCache, JdbcTemplate jdbcTemplate) {
+                                        WarehouseLocationListCache listCache, JdbcTemplate jdbcTemplate) {
         this.repository = repository;
         this.warehouseService = warehouseService;
         this.listCache = listCache;
         this.jdbcTemplate = jdbcTemplate;
-    }
-
-    public WarehouseLocationServiceImpl(WarehouseLocationRepository repository, WarehouseService warehouseService,
-                                        JdbcTemplate jdbcTemplate) {
-        this(repository, warehouseService, new WarehouseLocationListCache(repository), jdbcTemplate);
     }
 
     @Transactional

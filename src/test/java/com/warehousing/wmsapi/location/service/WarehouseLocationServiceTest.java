@@ -26,7 +26,7 @@ class WarehouseLocationServiceTest {
         when(repository.findByIdAndWarehouse_IdAndDeletedAtIsNull(locationId, warehouseId))
                 .thenReturn(Optional.empty());
         WarehouseLocationService service = new WarehouseLocationServiceImpl(repository, warehouses,
-                mock(JdbcTemplate.class));
+                new WarehouseLocationListCache(repository), mock(JdbcTemplate.class));
 
         BusinessException error = assertThrows(BusinessException.class,
                 () -> service.get(authentication, warehouseId, locationId));
@@ -41,8 +41,9 @@ class WarehouseLocationServiceTest {
         org.mockito.Mockito.doThrow(new BusinessException(org.springframework.http.HttpStatus.FORBIDDEN,
                 "WAREHOUSE_FORBIDDEN", "Denied."))
                 .when(warehouses).requireAccess(authentication, warehouseId);
-        WarehouseLocationService service = new WarehouseLocationServiceImpl(
-                mock(WarehouseLocationRepository.class), warehouses, mock(JdbcTemplate.class));
+        WarehouseLocationRepository repository = mock(WarehouseLocationRepository.class);
+        WarehouseLocationService service = new WarehouseLocationServiceImpl(repository, warehouses,
+                new WarehouseLocationListCache(repository), mock(JdbcTemplate.class));
 
         BusinessException error = assertThrows(BusinessException.class,
                 () -> service.list(authentication, warehouseId, 0, 20, "code"));
