@@ -8,11 +8,11 @@ import com.warehousing.wmsapi.location.dto.LocationResponse;
 import com.warehousing.wmsapi.common.api.PageResponse;
 import com.warehousing.wmsapi.common.error.BusinessException;
 import com.warehousing.wmsapi.common.pagination.BasePageRequest;
-import com.warehousing.wmsapi.common.pagination.MasterPage;
 import com.warehousing.wmsapi.warehouse.entity.WarehouseEntity;
 import com.warehousing.wmsapi.warehouse.service.WarehouseService;
-import java.util.Set;
 import java.util.UUID;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
@@ -21,19 +21,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WarehouseLocationServiceImpl implements WarehouseLocationService {
-    private static final Set<String> SORT_FIELDS = Set.of("code", "name", "createdAt");
     private final WarehouseLocationRepository repository;
     private final WarehouseService warehouseService;
+    private final WarehouseLocationListCache listCache;
     private final JdbcTemplate jdbcTemplate;
 
+    @Autowired
     public WarehouseLocationServiceImpl(WarehouseLocationRepository repository, WarehouseService warehouseService,
-                                    JdbcTemplate jdbcTemplate) {
+                                    WarehouseLocationListCache listCache, JdbcTemplate jdbcTemplate) {
         this.repository = repository;
         this.warehouseService = warehouseService;
+        this.listCache = listCache;
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public WarehouseLocationServiceImpl(WarehouseLocationRepository repository, WarehouseService warehouseService,
+                                        JdbcTemplate jdbcTemplate) {
+        this(repository, warehouseService, new WarehouseLocationListCache(repository), jdbcTemplate);
+    }
+
     @Transactional
+    @CacheEvict(cacheNames = "locations", allEntries = true)
     @Override
     public LocationResponse create(Authentication authentication, UUID warehouseId, LocationRequest request) {
         WarehouseEntity warehouse = accessibleActiveWarehouse(authentication, warehouseId);
@@ -48,14 +56,7 @@ public class WarehouseLocationServiceImpl implements WarehouseLocationService {
                                                BasePageRequest request) {
         warehouseService.requireAccess(authentication, warehouseId);
         warehouseService.find(warehouseId);
-        String search = MasterPage.normalizeSearch(request.getSearch());
-        var pageable = MasterPage.of(
-                request.getPage(), request.getSize(), request.getSort(), request.getOrder(), SORT_FIELDS);
-        var result = search == null
-                ? repository.findAllByWarehouse_IdAndDeletedAtIsNull(warehouseId, pageable)
-                : repository.searchActiveByWarehouse(warehouseId, search, pageable);
-        return new PageResponse<>(result.map(LocationResponse::from).getContent(), request.getPage(), request.getSize(),
-                result.getTotalElements(), result.getTotalPages());
+        return listCache.list(warehouseId, request);
     }
 
     @Transactional(readOnly = true)
@@ -66,6 +67,7 @@ public class WarehouseLocationServiceImpl implements WarehouseLocationService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "locations", allEntries = true)
     @Override
     public LocationResponse update(Authentication authentication, UUID warehouseId, UUID id, LocationRequest request) {
         accessibleActiveWarehouse(authentication, warehouseId);
@@ -78,6 +80,7 @@ public class WarehouseLocationServiceImpl implements WarehouseLocationService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "locations", allEntries = true)
     @Override
     public void delete(Authentication authentication, UUID warehouseId, UUID id) {
         warehouseService.requireAccess(authentication, warehouseId);

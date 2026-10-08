@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
@@ -47,6 +49,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "warehouses", allEntries = true)
     @Override
     public WarehouseResponse create(WarehouseRequest request) {
         ensureCodeAvailable(request.code());
@@ -55,6 +58,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "warehouses",
+            key = "#p0.name + ':' + #p1.page + ':' + #p1.size + ':' + #p1.sort + ':' + #p1.order + ':' + #p1.search")
     @Override
     public PageResponse<WarehouseResponse> list(Authentication authentication, BasePageRequest request) {
         String search = MasterPage.normalizeSearch(request.getSearch());
@@ -106,6 +111,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "warehouses", allEntries = true)
     @Override
     public WarehouseResponse update(Authentication authentication, UUID id, WarehouseRequest request) {
         requireAccess(authentication, id);
@@ -118,6 +124,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "warehouses", allEntries = true)
     @Override
     public void delete(Authentication authentication, UUID id) {
         requireAccess(authentication, id);
