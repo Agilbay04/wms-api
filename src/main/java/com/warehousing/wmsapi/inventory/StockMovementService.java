@@ -33,4 +33,19 @@ public class StockMovementService {
                 """, warehouseId, locationId, productId, quantity, stockAfter,
                 sourceEntityId, sourceItemId, userId);
     }
+
+    public void recordTransfer(UUID warehouseId, UUID locationId, UUID productId, String direction,
+                               int quantity, int stockAfter, UUID transferId, UUID transferItemId, UUID userId) {
+        String normalizedDirection = direction.toUpperCase(java.util.Locale.ROOT);
+        if (!normalizedDirection.equals("IN") && !normalizedDirection.equals("OUT")) {
+            throw new IllegalArgumentException("Transfer movement direction must be IN or OUT.");
+        }
+        jdbcTemplate.update("""
+                INSERT INTO stock_movements(warehouse_id, warehouse_location_id, product_id,
+                    movement_type, movement_direction, quantity, stock_after,
+                    source_entity_type, source_entity_id, source_item_id, created_by_user_id)
+                VALUES (?, ?, ?, 'STOCK_TRANSFER', ?, ?, ?, 'STOCK_TRANSFER', ?, ?, ?)
+                """, warehouseId, locationId, productId, normalizedDirection, quantity, stockAfter,
+                transferId, transferItemId, userId);
+    }
 }
