@@ -87,7 +87,10 @@ public class OpenApiConfig {
 
     private static Schema<?> errorEnvelopeSchema() {
         ObjectSchema schema = new ObjectSchema();
-        schema.addProperty("success", new Schema<Boolean>().type("boolean")._default(false));
+        Schema<Boolean> successSchema = new Schema<>();
+        successSchema.setType("boolean");
+        successSchema.setDefault(false);
+        schema.addProperty("success", successSchema);
         schema.addProperty("code", new IntegerSchema().format("int32"));
         schema.addProperty("message", new StringSchema());
         schema.addProperty("data", new Schema<>().nullable(true));
