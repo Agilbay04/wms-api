@@ -7,17 +7,15 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class ExportJobRepository {
     private final JdbcTemplate jdbcTemplate;
-
-    public ExportJobRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public UUID activeUserId(String email) {
         List<UUID> ids = jdbcTemplate.query("SELECT id FROM users WHERE email = ? AND deleted_at IS NULL AND is_active",

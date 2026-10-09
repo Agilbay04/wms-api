@@ -2,18 +2,16 @@ package com.warehousing.wmsapi.export.service;
 
 import com.warehousing.wmsapi.export.repository.ExportJobRepository.Job;
 import java.nio.file.Path;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ExportMailService {
     private final JavaMailSender mailSender;
-
-    public ExportMailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
 
     public void send(Job job, Path file) {
         try {

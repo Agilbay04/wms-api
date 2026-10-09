@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,12 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Inbounds", description = "Receive stock through draft, approval, and putaway workflows.")
 @RequestMapping("/api/v1/inbounds")
 @SecurityRequirement(name = "bearerAuth")
+@RequiredArgsConstructor
 public class InboundController {
     private final InboundService service;
-
-    public InboundController(InboundService service) {
-        this.service = service;
-    }
 
     @PostMapping
     @PreAuthorize("@permissionService.hasPermission(authentication, 'INBOUNDS', 'CREATE')")

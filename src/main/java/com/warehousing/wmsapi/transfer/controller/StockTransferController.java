@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Stock transfers", description = "Move stock between warehouse locations through approval workflows.")
 @RequestMapping("/api/v1/stock-transfers")
 @SecurityRequirement(name = "bearerAuth")
+@RequiredArgsConstructor
 public class StockTransferController {
     private final StockTransferService service;
-
-    public StockTransferController(StockTransferService service) {
-        this.service = service;
-    }
 
     @PostMapping
     @PreAuthorize("@permissionService.hasPermission(authentication, 'STOCK_TRANSFERS', 'CREATE')")

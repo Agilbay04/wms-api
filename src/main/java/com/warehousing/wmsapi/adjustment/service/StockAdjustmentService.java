@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
@@ -32,19 +33,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class StockAdjustmentService {
     private final StockAdjustmentRepository repository;
     private final WarehouseService warehouseService;
     private final StockBalanceService stockBalanceService;
     private final StockMovementService stockMovementService;
-
-    public StockAdjustmentService(StockAdjustmentRepository repository, WarehouseService warehouseService,
-            StockBalanceService stockBalanceService, StockMovementService stockMovementService) {
-        this.repository = repository;
-        this.warehouseService = warehouseService;
-        this.stockBalanceService = stockBalanceService;
-        this.stockMovementService = stockMovementService;
-    }
 
     @Transactional
     @CacheEvict(cacheNames = "dashboards", allEntries = true)

@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -23,18 +24,12 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import tools.jackson.databind.json.JsonMapper;
 
 @Service
+@RequiredArgsConstructor
 public class ExportJobService {
     private final ExportJobRepository repository;
     private final ExportStreamGateway streamGateway;
     private final WarehouseService warehouseService;
     private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
-
-    public ExportJobService(ExportJobRepository repository, ExportStreamGateway streamGateway,
-            WarehouseService warehouseService) {
-        this.repository = repository;
-        this.streamGateway = streamGateway;
-        this.warehouseService = warehouseService;
-    }
 
     @Transactional
     public ExportJobResponse create(Authentication authentication, ExportCreateRequest request) {

@@ -4,8 +4,12 @@ import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
+@Getter
+@Setter
 public class AuditTrailRequest extends BasePageRequest {
     private String entityType;
     private String action;
@@ -17,14 +21,4 @@ public class AuditTrailRequest extends BasePageRequest {
     @Schema(description = "Inclusive end date in UTC.")
     private LocalDate toDate;
 
-    public String getEntityType() { return entityType; }
-    public void setEntityType(String entityType) { this.entityType = entityType; }
-    public String getAction() { return action; }
-    public void setAction(String action) { this.action = action; }
-    public UUID getUserId() { return userId; }
-    public void setUserId(UUID userId) { this.userId = userId; }
-    public LocalDate getFromDate() { return fromDate; }
-    public void setFromDate(LocalDate fromDate) { this.fromDate = fromDate; }
-    public LocalDate getToDate() { return toDate; }
-    public void setToDate(LocalDate toDate) { this.toDate = toDate; }
 }

@@ -8,9 +8,14 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "warehouse_locations")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WarehouseLocationEntity extends AuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "warehouse_id", nullable = false)
@@ -25,8 +30,6 @@ public class WarehouseLocationEntity extends AuditableEntity {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
-    protected WarehouseLocationEntity() { }
-
     public WarehouseLocationEntity(WarehouseEntity warehouse, String code, String name,
                                    String description, boolean active) {
         this.warehouse = warehouse;
@@ -40,9 +43,4 @@ public class WarehouseLocationEntity extends AuditableEntity {
         this.active = active;
     }
 
-    public WarehouseEntity getWarehouse() { return warehouse; }
-    public String getCode() { return code; }
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public boolean isActive() { return active; }
 }

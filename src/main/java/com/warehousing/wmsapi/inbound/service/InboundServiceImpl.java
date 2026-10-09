@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
@@ -36,20 +37,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class InboundServiceImpl implements InboundService {
     private final InboundRepository repository;
     private final WarehouseService warehouseService;
     private final StockBalanceService stockBalanceService;
     private final StockMovementService stockMovementService;
-
-    public InboundServiceImpl(InboundRepository repository, WarehouseService warehouseService,
-                              StockBalanceService stockBalanceService,
-                              StockMovementService stockMovementService) {
-        this.repository = repository;
-        this.warehouseService = warehouseService;
-        this.stockBalanceService = stockBalanceService;
-        this.stockMovementService = stockMovementService;
-    }
 
     @Override
     @Transactional

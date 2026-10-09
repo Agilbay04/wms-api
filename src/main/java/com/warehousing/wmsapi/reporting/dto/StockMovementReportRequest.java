@@ -4,8 +4,12 @@ import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
+@Getter
+@Setter
 public class StockMovementReportRequest extends BasePageRequest {
     private UUID warehouseId;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -15,10 +19,4 @@ public class StockMovementReportRequest extends BasePageRequest {
     @Schema(description = "Inclusive end date in UTC.")
     private LocalDate toDate;
 
-    public UUID getWarehouseId() { return warehouseId; }
-    public void setWarehouseId(UUID warehouseId) { this.warehouseId = warehouseId; }
-    public LocalDate getFromDate() { return fromDate; }
-    public void setFromDate(LocalDate fromDate) { this.fromDate = fromDate; }
-    public LocalDate getToDate() { return toDate; }
-    public void setToDate(LocalDate toDate) { this.toDate = toDate; }
 }

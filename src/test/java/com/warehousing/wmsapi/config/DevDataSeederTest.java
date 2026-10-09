@@ -24,7 +24,7 @@ class DevDataSeederTest {
                 "admin@example.com", "Admin", "password"));
         when(userRepository.existsByEmail("admin@example.com")).thenReturn(true);
 
-        new DevDataSeeder(jdbcTemplate, userRepository, passwordEncoder, properties)
+        new DevDataSeeder(new DevSeedRepository(jdbcTemplate), userRepository, passwordEncoder, properties)
                 .run(mock(ApplicationArguments.class));
 
         verify(userRepository).existsByEmail("admin@example.com");
@@ -41,7 +41,7 @@ class DevDataSeederTest {
                 "admin@example.com", "Admin", "password"));
         when(passwordEncoder.encode("password")).thenReturn("encoded-password");
 
-        new DevDataSeeder(jdbcTemplate, userRepository, passwordEncoder, properties)
+        new DevDataSeeder(new DevSeedRepository(jdbcTemplate), userRepository, passwordEncoder, properties)
                 .run(mock(ApplicationArguments.class));
 
         verify(userRepository).existsByEmail("admin@example.com");

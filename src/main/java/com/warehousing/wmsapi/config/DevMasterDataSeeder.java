@@ -20,8 +20,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -34,14 +32,14 @@ public class DevMasterDataSeeder implements ApplicationRunner {
     private static final DateTimeFormatter RUN_TIMESTAMP = DateTimeFormatter
             .ofPattern("yyyyMMdd-HHmmss-SSS").withZone(ZoneOffset.UTC);
 
-    private final JdbcTemplate jdbcTemplate;
+    private final DevMasterDataRepository repository;
     private final SeederProperties seederProperties;
     private final TransactionTemplate transactionTemplate;
     private final JsonMapper jsonMapper = JsonMapper.builder().build();
 
-    public DevMasterDataSeeder(JdbcTemplate jdbcTemplate, SeederProperties seederProperties,
+    public DevMasterDataSeeder(DevMasterDataRepository repository, SeederProperties seederProperties,
                                PlatformTransactionManager transactionManager) {
-        this.jdbcTemplate = jdbcTemplate;
+        this.repository = repository;
         this.seederProperties = seederProperties;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
@@ -78,63 +76,29 @@ public class DevMasterDataSeeder implements ApplicationRunner {
     }
 
     private UUID seedCategory(String[] row, List<CreatedResource> created) {
-        List<UUID> inserted = jdbcTemplate.query("""
-                        INSERT INTO product_categories(code, name, description, is_active)
-                        VALUES (?, ?, ?, ?) ON CONFLICT (code) DO NOTHING RETURNING id
-                        """, (rs, index) -> rs.getObject("id", UUID.class),
-                row[0], row[1], row[2], Boolean.parseBoolean(row[3]));
-        if (!inserted.isEmpty()) {
-            created.add(resource(row[0], "product_categories", inserted.get(0)));
-            return inserted.get(0);
-        }
-        return activeParentId("SELECT id FROM product_categories WHERE code = ? AND deleted_at IS NULL AND is_active",
-                row[0], "category");
+        DevMasterDataRepository.SeededId seeded = repository.category(row[0], row[1], row[2],
+                Boolean.parseBoolean(row[3]));
+        if (seeded.created()) created.add(resource(row[0], "product_categories", seeded.id()));
+        return seeded.id();
     }
 
     private UUID seedWarehouse(String[] row, List<CreatedResource> created) {
-        List<UUID> inserted = jdbcTemplate.query("""
-                        INSERT INTO warehouses(code, name, address, is_active)
-                        VALUES (?, ?, ?, ?) ON CONFLICT (code) DO NOTHING RETURNING id
-                        """, (rs, index) -> rs.getObject("id", UUID.class),
-                row[0], row[1], row[2], Boolean.parseBoolean(row[3]));
-        if (!inserted.isEmpty()) {
-            created.add(resource(row[0], "warehouses", inserted.get(0)));
-            return inserted.get(0);
-        }
-        return activeParentId("SELECT id FROM warehouses WHERE code = ? AND deleted_at IS NULL AND is_active",
-                row[0], "warehouse");
+        DevMasterDataRepository.SeededId seeded = repository.warehouse(row[0], row[1], row[2],
+                Boolean.parseBoolean(row[3]));
+        if (seeded.created()) created.add(resource(row[0], "warehouses", seeded.id()));
+        return seeded.id();
     }
 
     private void seedProduct(String[] row, UUID categoryId, List<CreatedResource> created) {
-        List<UUID> inserted = jdbcTemplate.query("""
-                        INSERT INTO products(product_category_id, sku, name, description, unit, minimum_stock, is_active)
-                        VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (sku) DO NOTHING RETURNING id
-                        """, (rs, index) -> rs.getObject("id", UUID.class),
-                categoryId, row[0], row[2], row[3], row[4], Integer.parseInt(row[5]), Boolean.parseBoolean(row[6]));
-        if (!inserted.isEmpty()) {
-            created.add(resource(row[0], "products", inserted.get(0)));
-        }
+        DevMasterDataRepository.SeededId seeded = repository.product(categoryId, row[0], row[2], row[3], row[4],
+                Integer.parseInt(row[5]), Boolean.parseBoolean(row[6]));
+        if (seeded.created()) created.add(resource(row[0], "products", seeded.id()));
     }
 
     private void seedLocation(String[] row, UUID warehouseId, List<CreatedResource> created) {
-        List<UUID> inserted = jdbcTemplate.query("""
-                        INSERT INTO warehouse_locations(warehouse_id, code, name, description, is_active)
-                        VALUES (?, ?, ?, ?, ?)
-                        ON CONFLICT (warehouse_id, code) DO NOTHING RETURNING id
-                        """, (rs, index) -> rs.getObject("id", UUID.class),
-                warehouseId, row[1], row[2], row[3], Boolean.parseBoolean(row[4]));
-        if (!inserted.isEmpty()) {
-            created.add(resource(row[0] + "/" + row[1], "warehouse_locations", inserted.get(0)));
-        }
-    }
-
-    private UUID activeParentId(String query, String code, String kind) {
-        try {
-            return jdbcTemplate.queryForObject(query, UUID.class, code);
-        } catch (EmptyResultDataAccessException exception) {
-            throw new IllegalStateException("Seed " + kind + " " + code + " already exists but is inactive or deleted.",
-                    exception);
-        }
+        DevMasterDataRepository.SeededId seeded = repository.location(warehouseId, row[1], row[2], row[3],
+                Boolean.parseBoolean(row[4]));
+        if (seeded.created()) created.add(resource(row[0] + "/" + row[1], "warehouse_locations", seeded.id()));
     }
 
     private static UUID requireParent(Map<String, UUID> ids, String code, String kind) {

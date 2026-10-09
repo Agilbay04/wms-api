@@ -2,16 +2,14 @@ package com.warehousing.wmsapi.inventory;
 
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class StockBalanceRepository {
     private final JdbcTemplate jdbcTemplate;
-
-    public StockBalanceRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public Balance lockOrCreate(UUID warehouseId, UUID locationId, UUID productId) {
         jdbcTemplate.update("""

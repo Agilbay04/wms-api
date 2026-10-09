@@ -2,17 +2,15 @@ package com.warehousing.wmsapi.reporting.repository;
 
 import com.warehousing.wmsapi.reporting.dto.StockSummaryResponse;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class StockSummaryRepository {
     private final JdbcTemplate jdbcTemplate;
-
-    public StockSummaryRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Cacheable(cacheNames = "stock-summaries", key = "#warehouseId")
     public StockSummaryResponse get(UUID warehouseId) {

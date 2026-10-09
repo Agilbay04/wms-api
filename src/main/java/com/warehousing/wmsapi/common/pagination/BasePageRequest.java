@@ -6,8 +6,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 /** Common query parameters for paginated list endpoints. */
+@Getter
+@Setter
 public class BasePageRequest {
     @Schema(description = "One-based page number.", defaultValue = "1",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED)
@@ -45,18 +49,4 @@ public class BasePageRequest {
         return request;
     }
 
-    public Integer getPage() { return page; }
-    public void setPage(Integer page) { this.page = page; }
-
-    public Integer getSize() { return size; }
-    public void setSize(Integer size) { this.size = size; }
-
-    public String getSort() { return sort; }
-    public void setSort(String sort) { this.sort = sort; }
-
-    public String getOrder() { return order; }
-    public void setOrder(String order) { this.order = order; }
-
-    public String getSearch() { return search; }
-    public void setSearch(String search) { this.search = search; }
 }

@@ -19,6 +19,18 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
 
     boolean existsByCategory_IdAndDeletedAtIsNull(UUID categoryId);
 
+    @Query(value = """
+            SELECT EXISTS (
+                SELECT 1 FROM inbound_items WHERE product_id = :id AND deleted_at IS NULL
+                UNION ALL SELECT 1 FROM outbound_items WHERE product_id = :id AND deleted_at IS NULL
+                UNION ALL SELECT 1 FROM stock_transfer_items WHERE product_id = :id AND deleted_at IS NULL
+                UNION ALL SELECT 1 FROM stock_adjustment_items WHERE product_id = :id AND deleted_at IS NULL
+                UNION ALL SELECT 1 FROM warehouse_location_items WHERE product_id = :id AND deleted_at IS NULL
+                UNION ALL SELECT 1 FROM stock_movements WHERE product_id = :id AND deleted_at IS NULL
+            )
+            """, nativeQuery = true)
+    boolean isReferenced(@Param("id") UUID id);
+
     @EntityGraph(attributePaths = "category")
     Page<ProductEntity> findAllByDeletedAtIsNull(Pageable pageable);
 

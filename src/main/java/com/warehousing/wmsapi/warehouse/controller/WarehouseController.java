@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +31,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Warehouses", description = "Maintain warehouses and view warehouses accessible to the user.")
 @RequestMapping("/api/v1/warehouses")
 @SecurityRequirement(name = "bearerAuth")
+@RequiredArgsConstructor
 public class WarehouseController {
     private final WarehouseService service;
-
-    public WarehouseController(WarehouseService service) { this.service = service; }
 
     @PostMapping
     @PreAuthorize("@permissionService.hasPermission(authentication, 'WAREHOUSES', 'CREATE')")

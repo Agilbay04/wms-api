@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.nio.file.Path;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -29,14 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Report exports", description = "Queue report exports, inspect their status, and download completed CSV files.")
 @RequestMapping("/api/v1/reports/exports")
 @SecurityRequirement(name = "bearerAuth")
+@RequiredArgsConstructor
 public class ExportController {
     private final ExportJobService service;
     private final AppProperties properties;
-
-    public ExportController(ExportJobService service, AppProperties properties) {
-        this.service = service;
-        this.properties = properties;
-    }
 
     @PostMapping
     @PreAuthorize("@permissionService.hasPermission(authentication, 'REPORTS', 'EXPORT')")

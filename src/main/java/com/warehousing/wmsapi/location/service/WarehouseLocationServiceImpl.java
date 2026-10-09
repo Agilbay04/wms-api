@@ -11,27 +11,19 @@ import com.warehousing.wmsapi.common.pagination.BasePageRequest;
 import com.warehousing.wmsapi.warehouse.entity.WarehouseEntity;
 import com.warehousing.wmsapi.warehouse.service.WarehouseService;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class WarehouseLocationServiceImpl implements WarehouseLocationService {
     private final WarehouseLocationRepository repository;
     private final WarehouseService warehouseService;
     private final WarehouseLocationListCache listCache;
-    private final JdbcTemplate jdbcTemplate;
-
-    public WarehouseLocationServiceImpl(WarehouseLocationRepository repository, WarehouseService warehouseService,
-                                        WarehouseLocationListCache listCache, JdbcTemplate jdbcTemplate) {
-        this.repository = repository;
-        this.warehouseService = warehouseService;
-        this.listCache = listCache;
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Transactional
     @CacheEvict(cacheNames = {"locations", "dashboards", "stock-summaries"}, allEntries = true)
@@ -78,17 +70,7 @@ public class WarehouseLocationServiceImpl implements WarehouseLocationService {
     public void delete(Authentication authentication, UUID warehouseId, UUID id) {
         warehouseService.requireAccess(authentication, warehouseId);
         WarehouseLocationEntity location = find(warehouseId, id);
-        Boolean referenced = jdbcTemplate.queryForObject("""
-                SELECT EXISTS (
-                    SELECT 1 FROM warehouse_location_items WHERE warehouse_location_id = ? AND deleted_at IS NULL
-                    UNION ALL SELECT 1 FROM stock_movements WHERE warehouse_location_id = ? AND deleted_at IS NULL
-                    UNION ALL SELECT 1 FROM stock_transfer_items WHERE source_warehouse_location_id = ? AND deleted_at IS NULL
-                    UNION ALL SELECT 1 FROM stock_transfer_items WHERE destination_warehouse_location_id = ? AND deleted_at IS NULL
-                    UNION ALL SELECT 1 FROM stock_adjustment_items WHERE warehouse_location_id = ? AND deleted_at IS NULL
-                    UNION ALL SELECT 1 FROM outbound_items WHERE warehouse_location_id = ? AND deleted_at IS NULL
-                )
-                """, Boolean.class, id, id, id, id, id, id);
-        if (Boolean.TRUE.equals(referenced)) {
+        if (repository.isReferenced(id)) {
             throw new BusinessException(HttpStatus.CONFLICT, "LOCATION_IN_USE",
                     "Warehouse location is still used by stock or transactions.");
         }

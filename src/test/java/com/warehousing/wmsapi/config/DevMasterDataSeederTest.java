@@ -55,7 +55,7 @@ class DevMasterDataSeederTest {
     void seedsInDependencyOrderAndDoesNotDuplicateExistingRows() throws Exception {
         RecordingJdbcTemplate jdbcTemplate = new RecordingJdbcTemplate();
         PlatformTransactionManager transactionManager = transactionManager();
-        DevMasterDataSeeder seeder = new DevMasterDataSeeder(jdbcTemplate,
+        DevMasterDataSeeder seeder = new DevMasterDataSeeder(new DevMasterDataRepository(jdbcTemplate),
                 new SeederProperties(true, exportDirectory.toString()), transactionManager);
 
         seeder.run(mock(ApplicationArguments.class));
@@ -91,7 +91,7 @@ class DevMasterDataSeederTest {
     void doesNotWriteResultWhenDatabaseCommitFails() throws Exception {
         PlatformTransactionManager transactionManager = transactionManager();
         doThrow(new IllegalStateException("commit failed")).when(transactionManager).commit(any());
-        DevMasterDataSeeder seeder = new DevMasterDataSeeder(new RecordingJdbcTemplate(),
+        DevMasterDataSeeder seeder = new DevMasterDataSeeder(new DevMasterDataRepository(new RecordingJdbcTemplate()),
                 new SeederProperties(true, exportDirectory.toString()), transactionManager);
 
         assertThrows(IllegalStateException.class, () -> seeder.run(mock(ApplicationArguments.class)));

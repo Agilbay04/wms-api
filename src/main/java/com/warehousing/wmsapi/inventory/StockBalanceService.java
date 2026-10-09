@@ -7,18 +7,16 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class StockBalanceService {
     private final StockBalanceRepository repository;
-
-    public StockBalanceService(StockBalanceRepository repository) {
-        this.repository = repository;
-    }
 
     @Transactional
     @CacheEvict(cacheNames = {"dashboards", "stock-summaries"}, key = "#warehouseId")

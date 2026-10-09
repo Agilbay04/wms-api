@@ -7,17 +7,18 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HexFormat;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
     private static final String KEY_PREFIX = "wms:auth:refresh:";
     private final StringRedisTemplate redisTemplate;
     private final AppProperties appProperties;
     private final SecureRandom secureRandom = new SecureRandom();
-    public RefreshTokenServiceImpl(StringRedisTemplate redisTemplate, AppProperties appProperties) { this.redisTemplate = redisTemplate; this.appProperties = appProperties; }
-    @Override
+        @Override
     public String issue(String email) {
         byte[] bytes = new byte[32]; secureRandom.nextBytes(bytes);
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);

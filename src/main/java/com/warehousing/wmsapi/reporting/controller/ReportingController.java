@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,12 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Reports", description = "Query stock summaries, balances, and movement history.")
 @RequestMapping("/api/v1/reports")
 @SecurityRequirement(name = "bearerAuth")
+@RequiredArgsConstructor
 public class ReportingController {
     private final StockReportService stockReportService;
-
-    public ReportingController(StockReportService stockReportService) {
-        this.stockReportService = stockReportService;
-    }
 
     @GetMapping("/stocks/summary")
     @PreAuthorize("@permissionService.hasPermission(authentication, 'REPORTS', 'READ')")

@@ -4,17 +4,15 @@ import com.warehousing.wmsapi.dashboard.dto.DashboardResponse;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class DashboardRepository {
     private final JdbcTemplate jdbcTemplate;
-
-    public DashboardRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Cacheable(cacheNames = "dashboards", key = "#warehouseId")
     public DashboardResponse get(UUID warehouseId) {

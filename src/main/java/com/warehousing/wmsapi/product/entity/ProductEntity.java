@@ -8,9 +8,14 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "products")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductEntity extends AuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_category_id", nullable = false)
@@ -34,9 +39,6 @@ public class ProductEntity extends AuditableEntity {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
-    protected ProductEntity() {
-    }
-
     public ProductEntity(ProductCategoryEntity category, String sku, String name, String description,
                          String unit, int minimumStock, boolean active) {
         update(category, sku, name, description, unit, minimumStock, active);
@@ -53,11 +55,4 @@ public class ProductEntity extends AuditableEntity {
         this.active = active;
     }
 
-    public ProductCategoryEntity getCategory() { return category; }
-    public String getSku() { return sku; }
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public String getUnit() { return unit; }
-    public int getMinimumStock() { return minimumStock; }
-    public boolean isActive() { return active; }
 }

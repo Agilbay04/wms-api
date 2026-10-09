@@ -14,7 +14,6 @@ import com.warehousing.wmsapi.category.repository.ProductCategoryRepository;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 class ProductServiceTest {
     @Test
@@ -24,7 +23,7 @@ class ProductServiceTest {
         UUID categoryId = UUID.randomUUID();
         when(categories.findByIdAndDeletedAtIsNull(categoryId)).thenReturn(Optional.of(
                 new ProductCategoryEntity("CAT", "Category", null, false)));
-        ProductService service = new ProductServiceImpl(products, categories, mock(JdbcTemplate.class));
+        ProductService service = new ProductServiceImpl(products, categories);
         ProductRequest request = new ProductRequest(categoryId, "SKU-1", "Product", null, "pcs", 0, true);
 
         BusinessException error = assertThrows(BusinessException.class, () -> service.create(request));
@@ -35,8 +34,7 @@ class ProductServiceTest {
     void rejectsDuplicateSkuBeforeSaving() {
         ProductRepository products = mock(ProductRepository.class);
         when(products.existsBySku("SKU-1")).thenReturn(true);
-        ProductService service = new ProductServiceImpl(products, mock(ProductCategoryRepository.class),
-                mock(JdbcTemplate.class));
+        ProductService service = new ProductServiceImpl(products, mock(ProductCategoryRepository.class));
 
         BusinessException error = assertThrows(BusinessException.class, () -> service.create(
                 new ProductRequest(UUID.randomUUID(), "SKU-1", "Product", null, "pcs", 0, true)));

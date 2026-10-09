@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.Consumer;
@@ -20,16 +21,13 @@ import org.springframework.data.redis.core.StreamOperations;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class RedisStreamGateway implements ExportStreamGateway {
     public static final String STREAM = "wms:report-exports";
     public static final String GROUP = "wms-report-export-workers";
     private static final Duration CLAIM_IDLE = Duration.ofSeconds(30);
 
     private final StringRedisTemplate redisTemplate;
-
-    public RedisStreamGateway(StringRedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     @Override
     public void ensureConsumerGroup() {

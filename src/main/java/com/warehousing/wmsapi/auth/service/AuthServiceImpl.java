@@ -6,6 +6,7 @@ import com.warehousing.wmsapi.auth.dto.RefreshTokenRequest;
 import com.warehousing.wmsapi.auth.dto.LoginResponse;
 import com.warehousing.wmsapi.common.error.BusinessException;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,20 +14,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final AuthenticationProvider authenticationProvider;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final AccessTokenRevocationService accessTokenRevocationService;
-    public AuthServiceImpl(AuthenticationProvider authenticationProvider, JwtService jwtService,
-                           RefreshTokenService refreshTokenService,
-                           AccessTokenRevocationService accessTokenRevocationService) {
-        this.authenticationProvider = authenticationProvider;
-        this.jwtService = jwtService;
-        this.refreshTokenService = refreshTokenService;
-        this.accessTokenRevocationService = accessTokenRevocationService;
-    }
-    @Override
+        @Override
     public LoginResponse login(LoginRequest request) {
         try {
             authenticationProvider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(request.email(), request.password()));

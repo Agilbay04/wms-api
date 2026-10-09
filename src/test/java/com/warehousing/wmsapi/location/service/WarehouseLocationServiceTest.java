@@ -12,7 +12,6 @@ import com.warehousing.wmsapi.warehouse.service.WarehouseService;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 
 class WarehouseLocationServiceTest {
@@ -26,7 +25,7 @@ class WarehouseLocationServiceTest {
         when(repository.findByIdAndWarehouse_IdAndDeletedAtIsNull(locationId, warehouseId))
                 .thenReturn(Optional.empty());
         WarehouseLocationService service = new WarehouseLocationServiceImpl(repository, warehouses,
-                new WarehouseLocationListCache(repository), mock(JdbcTemplate.class));
+                new WarehouseLocationListCache(repository));
 
         BusinessException error = assertThrows(BusinessException.class,
                 () -> service.get(authentication, warehouseId, locationId));
@@ -43,7 +42,7 @@ class WarehouseLocationServiceTest {
                 .when(warehouses).requireAccess(authentication, warehouseId);
         WarehouseLocationRepository repository = mock(WarehouseLocationRepository.class);
         WarehouseLocationService service = new WarehouseLocationServiceImpl(repository, warehouses,
-                new WarehouseLocationListCache(repository), mock(JdbcTemplate.class));
+                new WarehouseLocationListCache(repository));
 
         BusinessException error = assertThrows(BusinessException.class,
                 () -> service.list(authentication, warehouseId, 0, 20, "code"));

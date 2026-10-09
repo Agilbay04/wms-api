@@ -6,18 +6,16 @@ import com.warehousing.wmsapi.common.pagination.MasterPage;
 import com.warehousing.wmsapi.location.dto.LocationResponse;
 import com.warehousing.wmsapi.location.repository.WarehouseLocationRepository;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class WarehouseLocationListCache {
     private static final Set<String> SORT_FIELDS = Set.of("code", "name", "createdAt");
     private final WarehouseLocationRepository repository;
-
-    public WarehouseLocationListCache(WarehouseLocationRepository repository) {
-        this.repository = repository;
-    }
 
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = "locations",

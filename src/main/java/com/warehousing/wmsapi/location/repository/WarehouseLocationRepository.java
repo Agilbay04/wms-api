@@ -18,6 +18,18 @@ public interface WarehouseLocationRepository extends JpaRepository<WarehouseLoca
     boolean existsByWarehouse_IdAndCode(UUID warehouseId, String code);
     boolean existsByWarehouse_IdAndDeletedAtIsNull(UUID warehouseId);
 
+    @Query(value = """
+            SELECT EXISTS (
+                SELECT 1 FROM warehouse_location_items WHERE warehouse_location_id = :id AND deleted_at IS NULL
+                UNION ALL SELECT 1 FROM stock_movements WHERE warehouse_location_id = :id AND deleted_at IS NULL
+                UNION ALL SELECT 1 FROM stock_transfer_items WHERE source_warehouse_location_id = :id AND deleted_at IS NULL
+                UNION ALL SELECT 1 FROM stock_transfer_items WHERE destination_warehouse_location_id = :id AND deleted_at IS NULL
+                UNION ALL SELECT 1 FROM stock_adjustment_items WHERE warehouse_location_id = :id AND deleted_at IS NULL
+                UNION ALL SELECT 1 FROM outbound_items WHERE warehouse_location_id = :id AND deleted_at IS NULL
+            )
+            """, nativeQuery = true)
+    boolean isReferenced(@Param("id") UUID id);
+
     @EntityGraph(attributePaths = "warehouse")
     Page<WarehouseLocationEntity> findAllByWarehouse_IdAndDeletedAtIsNull(UUID warehouseId, Pageable pageable);
 

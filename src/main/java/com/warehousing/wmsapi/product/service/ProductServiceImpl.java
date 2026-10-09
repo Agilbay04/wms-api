@@ -13,27 +13,20 @@ import com.warehousing.wmsapi.category.entity.ProductCategoryEntity;
 import com.warehousing.wmsapi.category.repository.ProductCategoryRepository;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private static final Set<String> SORT_FIELDS = Set.of("sku", "name", "createdAt");
 
     private final ProductRepository repository;
     private final ProductCategoryRepository categoryRepository;
-    private final JdbcTemplate jdbcTemplate;
-
-    public ProductServiceImpl(ProductRepository repository, ProductCategoryRepository categoryRepository,
-                          JdbcTemplate jdbcTemplate) {
-        this.repository = repository;
-        this.categoryRepository = categoryRepository;
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Transactional
     @CacheEvict(cacheNames = {"products", "dashboards", "stock-summaries"}, allEntries = true)
@@ -84,17 +77,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void delete(UUID id) {
         ProductEntity product = find(id);
-        Boolean referenced = jdbcTemplate.queryForObject("""
-                SELECT EXISTS (
-                    SELECT 1 FROM inbound_items WHERE product_id = ? AND deleted_at IS NULL
-                    UNION ALL SELECT 1 FROM outbound_items WHERE product_id = ? AND deleted_at IS NULL
-                    UNION ALL SELECT 1 FROM stock_transfer_items WHERE product_id = ? AND deleted_at IS NULL
-                    UNION ALL SELECT 1 FROM stock_adjustment_items WHERE product_id = ? AND deleted_at IS NULL
-                    UNION ALL SELECT 1 FROM warehouse_location_items WHERE product_id = ? AND deleted_at IS NULL
-                    UNION ALL SELECT 1 FROM stock_movements WHERE product_id = ? AND deleted_at IS NULL
-                )
-                """, Boolean.class, id, id, id, id, id, id);
-        if (Boolean.TRUE.equals(referenced)) {
+        if (repository.isReferenced(id)) {
             throw new BusinessException(HttpStatus.CONFLICT, "PRODUCT_IN_USE",
                     "Product is still used by stock or transactions.");
         }

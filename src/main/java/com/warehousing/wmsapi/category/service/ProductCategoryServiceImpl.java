@@ -12,6 +12,7 @@ import com.warehousing.wmsapi.common.pagination.MasterPage;
 import com.warehousing.wmsapi.product.repository.ProductRepository;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -19,15 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class ProductCategoryServiceImpl implements ProductCategoryService {
     private static final Set<String> SORT_FIELDS = Set.of("code", "name", "createdAt");
     private final ProductCategoryRepository repository;
     private final ProductRepository productRepository;
-
-    public ProductCategoryServiceImpl(ProductCategoryRepository repository, ProductRepository productRepository) {
-        this.repository = repository;
-        this.productRepository = productRepository;
-    }
 
     @Transactional
     @CacheEvict(cacheNames = {"categories", "dashboards", "stock-summaries"}, allEntries = true)

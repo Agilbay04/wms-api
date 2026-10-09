@@ -15,12 +15,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class StockAdjustmentRepository {
     private static final Set<String> SORT_FIELDS = Set.of("created_at", "reference_number", "status", "adjustment_type");
     private static final String VISIBLE_ADJUSTMENTS = """
@@ -41,10 +43,6 @@ public class StockAdjustmentRepository {
             row.getObject("reviewed_by_user_id", UUID.class), row.getObject("created_at", OffsetDateTime.class));
 
     private final JdbcTemplate jdbcTemplate;
-
-    public StockAdjustmentRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public UUID activeUserId(String email) {
         List<UUID> ids = jdbcTemplate.query("""

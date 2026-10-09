@@ -9,16 +9,14 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 import javax.crypto.SecretKey;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
     private final AppProperties appProperties;
-
-    public JwtService(AppProperties appProperties) {
-        this.appProperties = appProperties;
-    }
 
     public String createAccessToken(String subject) {
         Instant issuedAt = Instant.now();

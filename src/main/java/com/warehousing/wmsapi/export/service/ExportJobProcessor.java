@@ -6,24 +6,18 @@ import com.warehousing.wmsapi.export.repository.ExportJobRepository.Job;
 import com.warehousing.wmsapi.warehouse.service.WarehouseService;
 import java.nio.file.Path;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ExportJobProcessor {
     private static final int MAX_ATTEMPTS = 3;
     private final ExportJobRepository repository;
     private final ExportStorageService storageService;
     private final ExportMailService mailService;
     private final WarehouseService warehouseService;
-
-    public ExportJobProcessor(ExportJobRepository repository, ExportStorageService storageService,
-            ExportMailService mailService, WarehouseService warehouseService) {
-        this.repository = repository;
-        this.storageService = storageService;
-        this.mailService = mailService;
-        this.warehouseService = warehouseService;
-    }
 
     /** Returns true only when the stream entry is terminal and safe to acknowledge. */
     public boolean process(java.util.UUID jobId) {

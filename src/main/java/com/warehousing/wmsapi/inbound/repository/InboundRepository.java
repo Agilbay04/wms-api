@@ -14,12 +14,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class InboundRepository {
     private static final Set<String> SORT_FIELDS = Set.of("created_at", "reference_number", "status");
     private static final String VISIBLE_INBOUNDS = """
@@ -48,10 +50,6 @@ public class InboundRepository {
             row.getObject("created_at", OffsetDateTime.class));
 
     private final JdbcTemplate jdbcTemplate;
-
-    public InboundRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public UUID activeUserId(String email) {
         List<UUID> ids = jdbcTemplate.query("""
