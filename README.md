@@ -110,17 +110,53 @@ Errors use the same envelope as successful responses: `success` is `false`, `cod
 
 ## Tests
 
+### Unit tests
+
+Unit tests run with the `test` Gradle task and focus on individual services, handlers, validators, and configuration behavior. They do not require the dedicated integration test database.
+
 ```sh
 make test
 ```
 
-The opt-in integration suite uses PostgreSQL, Redis, and Mailpit configured through `WMS_TEST_DB_*` plus the service environment variables. Run it with:
+The current unit test coverage includes:
+
+- **Authentication and tokens:** `AuthServiceTest`, `JwtServiceTest`, `JwtAuthenticationFilterTest`, `RefreshTokenServiceTest`, and `AccessTokenRevocationServiceTest` cover login, logout, token creation and validation, refresh rotation, and revoked or expired access tokens.
+- **Authorization and API errors:** `PermissionServiceTest`, `WarehouseAccessServiceTest`, `SecurityErrorHandlerTest`, and `ApiExceptionHandlerTest` cover permission and warehouse access decisions, 401/403 responses, and mapping exceptions to safe API errors.
+- **API and pagination:** `ApiResponseTest`, `MasterPageTest`, `MasterListDefaultsTest`, and `WarehousePaginationTest` cover response envelopes, page and sort validation, shared pagination defaults, and SQL offsets.
+- **Master data services:** `ProductCategoryServiceTest`, `ProductServiceTest`, and `WarehouseLocationServiceTest` cover restrictions on deleting or deactivating categories in use, product category and SKU validation, and warehouse-scoped locations.
+- **Seeders and OpenAPI:** `DevDataSeederTest` and `DevMasterDataSeederTest` cover development seeder conditions, ordering, duplicate handling, and failure behavior. `OpenApiSecurityTest` checks the bearer JWT scheme and which endpoints require authentication.
+
+### Integration tests
+
+Integration tests exercise application flows against PostgreSQL and run with the separate `integrationTest` Gradle task. They use isolated, temporary schemas inside the dedicated database named exactly `wms-integration-test`. Configure `WMS_TEST_DB_HOST`, `WMS_TEST_DB_NAME`, `WMS_TEST_DB_USERNAME`, and optionally `WMS_TEST_DB_PORT` and `WMS_TEST_DB_PASSWORD` in `.env`. Do not point these variables at the application database.
+
+Run the full opt-in integration suite with:
 
 ```sh
 make integration-test
 ```
 
-This command requires a dedicated database named exactly `wms-integration-test` and creates isolated temporary schemas for its tests.
+To run one integration test class directly, use its fully qualified class name or a wildcard. For example:
+
+```sh
+set -a; . ./.env; set +a
+./gradlew integrationTest --tests 'com.warehousing.wmsapi.inbound.InboundIntegrationTest'
+```
+
+The classes selected by `make integration-test` cover:
+
+- **`FlywayMigrationIntegrationTest`** — applies all migrations to an isolated schema.
+- **`InboundIntegrationTest`** — inbound approval and putaway, role permissions, rejected-document revision, active products, and rollback on invalid destinations.
+- **`StockConcurrencyIntegrationTest`** — concurrent deductions cannot spend the same available stock twice.
+- **`StockQueryIntegrationTest`** — stock and movement pages respect warehouse assignments.
+- **`StockTransferIntegrationTest`** — stock movements on approval, atomic rollback, transfer validation, and revision after rejection.
+- **`StockAdjustmentIntegrationTest`** — positive and negative adjustments, reviewer audit, prevention of negative stock, and rejected draft revision.
+- **`OutboundIntegrationTest`** — stock deduction and movement, immutable approved outbound, rollback for insufficient stock, rejected-document revision, and warehouse/location access.
+- **`ReportingIntegrationTest`** — dashboard and report updates, warehouse/date filters, and warehouse access restrictions.
+- **`AuditTrailIntegrationTest`** — audit filters, bounded pagination, and visibility limited to assigned warehouses.
+- **`ExportJobIntegrationTest`** — export job lifecycle, ownership of reads/downloads, retries and safe failure state, and warehouse access.
+
+The export integration test replaces the stream gateway and mail sender with fakes. It verifies email-send attempts and retry handling without connecting to Redis or sending real email. Its generated export files and the test's temporary schema are cleaned up after the class completes.
 
 ## Mailpit
 
